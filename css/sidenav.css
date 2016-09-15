@@ -1,0 +1,28 @@
+.sidenav .country-list .label {
+  font-size: 15px;
+}
+.sidenav .country-list .label.label-most-free {
+  background-color: #00bbbc;
+}
+.sidenav .country-list .label.label-2nd-quart{
+  background-color: #b8d051;
+}
+.sidenav .country-list .label.label-3rd-quart {
+  background-color: #fcab4a;;
+}
+.sidenav .country-list .label.label-least-free {
+  background-color: #ee3b58;;
+}
+
+.color-most-free .rank, .color-most-free .value {
+  color: #00bbbc;
+}
+.color-2nd-quart .rank, .color-2nd-quart .value {
+  color: #b8d051;
+}
+.color-3rd-quart .rank, .color-3rd-quart .value {
+  color: #fcab4a;
+}
+.color-least-free .rank, .color-least-free .value {
+  color: #ee3b58;
+}

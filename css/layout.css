@@ -1,0 +1,93 @@
+.container-fluid.layout-body {
+  margin: 0;
+  padding: 0;
+}
+
+/* Set height of the grid so .sidenav can be 100% (adjust if needed) */
+      
+.row.content {
+  height: 100%
+}
+/* Set gray background color and 100% height */
+
+/* Hide for mobile, show later */
+.sidenav {
+  display: none;
+}
+@media (min-width: 768px) {
+  .sidenav {
+    position: fixed;
+    top: 52px;
+    bottom: 0;
+    left: 0;
+    z-index: 1000;
+    display: block;
+    padding: 20px;
+    overflow-x: hidden;
+    overflow-y: auto; /* Scrollable contents if viewport is shorter than content. */
+    background-color: #f5f5f5;
+    border-right: 1px solid #eee;
+  }
+}
+
+
+/*
+ * Main content
+ */
+
+.main {
+  padding: 20px;
+}
+@media (min-width: 768px) {
+  .main {
+    padding-right: 40px;
+    padding-left: 40px;
+  }
+}
+
+.bootstrap-tagsinput {
+  width: 100%;
+}
+
+.hidden {
+    display: none;
+}
+div.tooltip {
+  width: 150px;
+  color: #222;
+  position: absolute;
+  padding: 15px;
+  background: #F8F8F8;
+  -webkit-border-radius: 5px;
+  -moz-border-radius: 5px;
+  border-radius: 5px;
+  opacity: 1;
+}
+
+div.tooltip:after {
+  content: '';
+  position: absolute;
+  border-style: solid;
+  border-width: 15px 15px 0;
+  border-color: #F8F8F8  transparent;
+  display: block;
+  width: 0;
+  z-index: 1;
+  bottom: -15px;
+  left: 60px;
+}
+
+
+div.tooltip div.country-title {
+  font-size: 14px;
+  font-weight: bold;
+  line-height: 14px;
+  margin-bottom: 15px;
+}
+
+div.tooltip span.country-rank {
+  font-size: 20px;
+  font-weight: bold;
+  margin-left: 15px;
+  vertical-align: middle;
+}

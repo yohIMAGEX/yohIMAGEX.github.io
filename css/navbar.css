@@ -1,0 +1,25 @@
+.navbar {
+  margin-bottom: 0;
+}
+
+.navbar .title-page {
+  font-size: 24px;
+  color: white;
+  line-height: 45px;
+}
+
+.sidenav {
+  
+}
+
+.share-block {
+  border-top: 1px solid gray;
+  border-bottom: 1px solid gray;
+  padding: 10px 0 10px 0;
+  margin-bottom: 20px;
+}
+
+.share-block  .social-icons i {
+    font-size: 25px;
+}
+
