@@ -1,77 +1,175 @@
-<!doctype html>
-<html class="no-js" lang="">
+<!DOCTYPE html>
+<html lang="en">
 
   <head>
+    <title>Bootstrap Example</title>
     <meta charset="utf-8">
-    <meta http-equiv="x-ua-compatible" content="ie=edge">
-    <title></title>
-    <meta name="description" content="">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-
-    <link rel="apple-touch-icon" href="apple-touch-icon.png">
+    <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/4.6.3/css/font-awesome.min.css">
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+    <script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
 
     <link href="plugings/d3-geomap/css/d3.geomap.css" rel="stylesheet">
+    <link href="plugings/jquery-ui-1.12.0.custom/jquery-ui.min.css" rel="stylesheet">
+    <link href="bower_components/chosen/chosen.css" rel="stylesheet">
+    <link href="bower_components/flag-css/dist/flag-css.min.css" rel="stylesheet">
     <link href="node_modules/d3.slider/d3.slider.css" rel="stylesheet">
-    <!-- Place favicon.ico in the root directory -->
-
     <link rel="stylesheet" href="css/normalize.css">
-    <link rel="stylesheet" href="css/modal.css">
     <link rel="stylesheet" href="css/main.css">
-    <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
-    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/4.6.3/css/font-awesome.min.css">
-
+    <link rel="stylesheet" href="css/layout.css">
+    <link rel="stylesheet" href="css/sidenav.css">
+    <link rel="stylesheet" href="css/navbar.css">
+    
     <script src="js/vendor/modernizr-2.8.3.min.js"></script>
 
     <script src="plugings/d3-geomap/vendor/d3.geomap.dependencies.min.js"></script>
     <script src="plugings/d3-geomap/js/d3.geomap.js"></script>
     <script src="bower_components/lodash/dist/lodash.js"></script>
+    <script src="js/colors.js"></script>
   </head>
 
   <body>
-    <div id="map">
-      <div class="header-controls">
-        <input type="text" id="typeahead" class="form-control">
+    <nav class="navbar navbar-inverse">
+      <div class="container-fluid">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false"
+            aria-controls="navbar">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="#">
+            <img src="https://www.fraserinstitute.org/sites/all/themes/fraser/logo.png" height="25">
+          </a>
+        </div>
+        
+        <div id="navbar" class="navbar-collapse collapse">
+          <span class="h3 title-page">Economic Freedom</span>
+          <ul class="nav navbar-nav navbar-right">
+            <li class="active"><a href="./">Map <span class="sr-only">(current)</span></a></li>
+            <li><a href="../navbar-static-top/">Graph</a></li>
+            <li><a href="../navbar-fixed-top/">Nav</a></li>
+            <li>
+              <form class="navbar-form" role="search">
+                <div class="input-group">
+                  <input type="text" class="form-control" placeholder="Search" name="srch-term" id="srch-term">
+                  <div class="input-group-btn">
+                    <button class="btn btn-default" type="submit"><i class="glyphicon glyphicon-search"></i></button>
+                  </div>
+                </div>
+              </form>
+            </li>
+          </ul>
+        </div>
+        <!--/.nav-collapse -->
       </div>
-      <div class="zoom-buttons">
-        <button class="btn btn-default" id="zoom_in" data-zoom="+1"><i class="fa fa-search-plus" aria-hidden="true"></i></button>
-        <button class="btn btn-default" id="zoom_out" data-zoom="-1"><i class="fa fa-search-plus" aria-hidden="true"></i></button>
-      </div>
-      <div class="chart-buttons">
-        <button class="btn btn-default" ><i class="fa fa-map-o" aria-hidden="true"></i></button>
-        <button class="btn btn-default" ><i class="fa fa-line-chart" aria-hidden="true"></i></button>
-      </div>
-      <div class="footer-controls">
-        <button type="button" id="button_play" class="btn play-button" onclick='buttonPlayPress()'>
-                    <i class="fa fa-play"></i>
-                </button>
-        <div id="slide"></div>
-      </div>
+      <!--/.container-fluid -->
+    </nav>
+    <div class="container-fluid layout-body">
+      <div class="row-fluid">
+        <div class="col-sm-3 col-md-3 sidenav">
+          <ul class="nav nav-pills nav-justified">
+            <li class="active"><a data-toggle="tab" href="#world">World Raking</a></li>
+            <li class="disabled country-info--tab"><a data-toggle="tab" href="#country-info">Country Info</a></li>
+          </ul>
+          <div class="tab-content">
+            <!-- WORLD TAB -->
+            <div id="world" class="tab-pane fade in active">
+              <div class="text-center">
+                <h5>Economic Freedom Ranking</h5>
+                <h2>2015</h2>
+              </div>
+              <div class="share-block">
+                <div class="pull-left">Share on : </div>
+                <div class="pull-right social-icons">
+                    <i class="fa fa-envelope pointer" aria-hidden="true"></i>
+                    <i class="fa fa-facebook-official pointer" aria-hidden="true"></i>
+                    <i class="fa fa-twitter-square pointer" aria-hidden="true"></i>
+                </div>
+                <div class="clearfix"></div>
+              </div>
+              <table class="table country-list">
+                <thead>
+                  <tr>
+                    <th>#</th>
+                    <th>Country</th>
+                    <th>Score</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr class="most-free-tr">
+                    <th class="first-free-th" colspan="3">
+                      <span class="label label-most-free">Most Free</span>
+                    </th>
+                  </tr>
+                  <tr class="second-free-tr">
+                    <th class="second-free-th"colspan="3">
+                      <span class="label label-2nd-quart">2nd Quartline</span>
+                    </th>
+                  </tr>
+                  <tr class="third-free-tr">
+                    <th class="third-free-th" colspan="3">
+                      <span class="label label-3rd-quart">3rd Quartline</span>
+                    </th>
+                  </tr>
+                  <tr class="least-free-tr">
+                    <th class="least-free-th" colspan="3">
+                      <span class="label label-least-free">Least Free</span>
+                    </th>
+                  </tr>
+                  <tr class="end-tr">
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <!-- END OF WORLD TAB -->
+            <!-- COUNTRY INFO TAB -->
+            <div id="country-info" class="tab-pane fade">
+              <h3>Menu 1</h3>
+              <p>Some content in menu 1.</p>
+            </div>
+            <!-- END OF COUNTRY INFO TAB -->
+          </div>
+        </div>
+        <div class="col-sm-9 col-sm-offset-3 col-md-9 col-md-offset-3 main">
+          <div id="map">
+            <div class="header-controls">
+              <select data-placeholder="Choose a country..."  id="typeahead" multiple class="chosen-select">
+                <option></option>
+              </select>
+            </div>
+            <div class="zoom-buttons">
+              <button class="btn btn-default" id="zoom_in" data-zoom="+1"><i class="fa fa-search-plus" aria-hidden="true"></i></button>
+              <button class="btn btn-default" id="zoom_out" data-zoom="-1"><i class="fa fa-search-minus" aria-hidden="true"></i></button>
+            </div>
+            <div class="footer-controls">
+              <button type="button" id="button_play" class="btn play-button" onclick='buttonPlayPress()'>
+                        <i class="fa fa-play"></i>
+                    </button>
+              <div id="slide"></div>
+            </div>
 
+          </div>
+        </div>
+      </div>
     </div>
-
-
-    <script src="//code.jquery.com/jquery-1.12.0.min.js"></script>
-    <script>window.jQuery || document.write('<script src="js/vendor/jquery-1.12.0.min.js"><\/script>')</script>
-    <script src="//cdnjs.cloudflare.com/ajax/libs/bootstrap-3-typeahead/4.0.1/bootstrap3-typeahead.min.js"></script>
-
-    <script src="js/plugins.js"></script>
+    <script src="bower_components/chosen/chosen.jquery.js" ></script>
+    <script src="node_modules/bootstrap-tokenfield/dist/bootstrap-tokenfield.min.js"></script>
     <script src="node_modules/d3.slider/d3.slider.js"></script>
+    <script src="js/plugins.js"></script>
     <script src="js/clock.js"></script>
-    <script src="js/modal.js"></script>
     <script src="js/main.js"></script>
-    
-
-    
-
     <!-- Google Analytics: change UA-XXXXX-X to be your site's ID. -->
     <script>
-        (function(b,o,i,l,e,r){b.GoogleAnalyticsObject=l;b[l]||(b[l]=
-        function(){(b[l].q=b[l].q||[]).push(arguments)});b[l].l=+new Date;
-        e=o.createElement(i);r=o.getElementsByTagName(i)[0];
-        e.src='//www.google-analytics.com/analytics.js';
-        r.parentNode.insertBefore(e,r)}(window,document,'script','ga'));
-        ga('create','UA-XXXXX-X','auto');ga('send','pageview');
-    </script>
+    (function(b,o,i,l,e,r){b.GoogleAnalyticsObject=l;b[l]||(b[l]=
+    function(){(b[l].q=b[l].q||[]).push(arguments)});b[l].l=+new Date;
+    e=o.createElement(i);r=o.getElementsByTagName(i)[0];
+    e.src='//www.google-analytics.com/analytics.js';
+    r.parentNode.insertBefore(e,r)}(window,document,'script','ga'));
+    ga('create','UA-XXXXX-X','auto');ga('send','pageview');
+</script>
   </body>
 
 </html>
