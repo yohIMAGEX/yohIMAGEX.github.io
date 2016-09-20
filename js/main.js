@@ -1,6 +1,6 @@
 
 'use stritct';
-$( document ).ready( function() {
+$(document).ready(function () {
   $(".disabled").click(function (e) {
     e.preventDefault();
     return false;
@@ -23,40 +23,69 @@ $( document ).ready( function() {
   );
 
   var colorRange = [
-    {color: "#ee3b58", name: 'least-free', value : 3},
-    {color: "#fcab4a", name: '3rd-quart', value : 2},
-    {color: "#b8d051", name: '2nd-quart', value : 1},
-    {color: "#00bbbc", name: 'most-free', value : 0}
+    { color: "#ee3b58", name: 'least-free', value: 3 },
+    { color: "#fcab4a", name: '3rd-quart', value: 2 },
+    { color: "#b8d051", name: '2nd-quart', value: 1 },
+    { color: "#00bbbc", name: 'most-free', value: 0 }
   ];
-  
-  var map = d3.geomap.choropleth()
-    .geofile('plugings/d3-geomap/topojson/world/countries.json')
-    .colors(_.map(colorRange, 'color'))
-    .column('Calculated Percentage')
-    .duration(500)
-    .zoomFactor(1)
-    .format(d3.format(',.02f'))
-    .legend(true)
-    .postUpdate(postUpdateMap);
-  
 
-  d3.json("plugings/d3-geomap/topojson/world/countries.json", function (geo) {
-    console.log('geo',geo);
-    window.countryList = topojson.feature(geo, geo.objects[map.properties.units]).features;
-    initTypeAhead();
+  function setup() {
+    var map = d3.geomap.choropleth()
+      .geofile('plugings/d3-geomap/topojson/world/countries.json')
+      .height($(document).height() - 120)
+      .width($('#graph').width())
+      .projection(d3.geo.mercator)
+      .colors(_.map(colorRange, 'color'))
+      .column('Calculated Percentage')
+      .duration(500)
+      .zoomFactor(1)
+      .format(d3.format(',.02f'))
+      .legend({
+        width: 50,
+        height: 200,
+        labels: false,
+        offsetY: 180,
+        wFactor: 5
+      })
+      .onClick(function(country) {
+        $("#typeahead").val(_.map(map._.selectedList, function(item) { 
+            return item.id.toUpperCase();
+        }));
+
+        $("#typeahead").trigger("chosen:updated");
+        console.log('onClick');
+      })
+      .postUpdate(postUpdateMap);
+    window.map = map;
+
+    d3.csv('globalslaveryindex.csv', function (error, data) {
+      d3.select("#graph")
+        .datum(data)
+        .call(map.draw, map);
+    });
+  }
+
+  function postUpdateMap() {
+
+    var width = parseFloat(window.map.svg.attr('width'));
+    var height = parseFloat(window.map.svg.attr('height'));
+
+    map.drawSelected();
 
     d3.selectAll("button[data-zoom]")
       .on("click", zoomClicked);
-  });
 
-  d3.csv('globalslaveryindex.csv', function (error, data) {
-    d3.select("#map")
-      .datum(data)
-      .call(map.draw, map);
-    
-  });
+    initTypeAhead(d3.selectAll(".unit").data());
 
-  window.map = map;
+    slider.on('slideend', function () {
+      counter.setCounter(slider.value());
+    });
+
+    buildTable(map.data);
+    initMapPopUp();
+  }
+
+ 
 
   var slider = d3.slider().min(2000).max(2016).step(1);
   d3.select('#slide').call(slider);
@@ -103,93 +132,51 @@ $( document ).ready( function() {
   }
   window.buttonStopPress = buttonStopPress;
 
-  // function zoomed() {
-  //   console.log('d3.event.translate', d3.event.translate);
-  //   projection.translate(d3.event.translate);
-  //   d3.select('.units.zoom').selectAll("path").attr("d", path);
+  function initMapPopUp() {
+    d3.selectAll(".unit").on("mousemove", function (d) {
+      var mouse = d3.mouse(map.svg.node()).map(function (d) {
+        return parseInt(d);
+      });
+      var tmpCountry = _.find(map.data, { iso3: d.id });
+      if (tmpCountry) {
+        var score = parseFloat(tmpCountry['Calculated Percentage'], 10)
+          .toFixed(2);
+        tooltip.classed('hidden', false)
+          .attr('style', 'left:' + (mouse[0] + $('.col-sm-3.col-md-3.sidenav').outerWidth() - 55) +
+            'px; top:' + (mouse[1] - 60) + 'px')
+          .html("<div class=\"text-center country-title\">" + d.properties.name + "</div>" +
+            "<span class=\"flag flag-" + d.id.toLowerCase() + " flag-3x\"></span>" +
+            "<span class=\"country-rank\"> " + score + " </span>");
+      }
 
-  // }
-
-  function postUpdateMap() {
-
-    var width = parseFloat(window.map.svg.attr('width'));
-    var height = parseFloat(window.map.svg.attr('height'));
-    // var zoom = d3.behavior.zoom()
-   	//  				.translate(map.projection()().translate())
-   	//  				.scaleExtent([map.projection()().scale(), map.projection()().scale()])
-   	//  				.on("zoom", zoomed);
-    // map.zoomObject = zoom;
-    // d3.select(".units.zoom").call(zoom);
-    // projection = map.projection()();
-    // path = d3.geo.path()
-		// 	      .projection(projection);
-
-    slider.on('slideend', function () {
-      counter.setCounter(slider.value());
     });
 
-    annotation();
-    
-    buildTable(map.data);
-
-    d3.selectAll(".unit").on("mousemove", function(d) {
-        var mouse = d3.mouse(map.svg.node()).map(function(d) {
-            return parseInt(d);
-        });
-        var tmpCountry = _.find(map.data, {iso3: d.id});
-        if(tmpCountry) {
-          var score = parseFloat(tmpCountry['Calculated Percentage'], 10)
-                      .toFixed(2);
-          tooltip.classed('hidden', false)
-              .attr('style', 'left:' + (mouse[0] + $('.col-sm-3.col-md-3.sidenav').outerWidth() - 30 ) +
-                'px; top:' + (mouse[1] + 70) + 'px')
-              .html("<div class=\"text-center country-title\">" + d.properties.name + "</div>" +
-                    "<span class=\"flag flag-" + d.id.toLowerCase() + " flag-3x\"></span>" +
-                    "<span class=\"country-rank\"> " + score + " </span>");
-        }
-        
-      });
-
-    d3.selectAll(".unit").on("mouseout", function(d) {
+    d3.selectAll(".unit").on("mouseout", function (d) {
       tooltip.classed('hidden', true);
     });
   }
-  
-  function initTypeAhead() {
-    
-    var countryArray = _.forEach(window.countryList, function (country) {
+
+  function initTypeAhead(list) {
+    var countryArray = _.forEach(list, function (country) {
       $input.append($('<option>', {
-        value:country.id, 
-        text:country.properties.name}
-      ));
-    }); 
-    
+        value: country.id,
+        text: country.properties.name
+      }));
+    });
+
     $input.chosen({
       max_selected_options: 5,
       no_results_text: "Oops, nothing found!"
-    }); 
+    });
 
-    $input.chosen().change( function(event,value) {
-      console.log('value', value);
+    $input.chosen().change(function (event, value) {
       var countryCode = value.selected || value.deselected;
-      var tmpCountry = _.find(selectedCountries, {id: countryCode})
-      if(tmpCountry) {
-        _.remove(selectedCountries, function(item) {
-            return item.id == d.id;
-        });
-      } else {
-        if(selectedCountries.length == 5) {
-          selectedCountries.shift();
-        }
-        selectedCountries.push(tmpCountry);
-      }
-      map._.selectedList = selectedCountries;
       zoomToCountry(countryCode);
     });
   }
 
   function zoomToCountry(id) {
-    var country = _.find(window.countryList, { id: id });
+    var country = _.find(d3.selectAll(".unit").data(), { id: id });
     if (country) {
       map.clicked(country);
     }
@@ -198,22 +185,32 @@ $( document ).ready( function() {
 
   function zoomClicked() {
     var direction = parseInt(this.getAttribute("data-zoom"));
-    if(direction == -1 && map.zoomFactor() == 1) {
-      map.zoomFactor(1);
-    } else {
-      map.zoomFactor(map.zoomFactor() + direction);
-    }
+    var clicked = d3.event.target,
+      factor = 0.2,
+      target_zoom = 1,
+      center = [map.properties.width / 2, map.properties.height / 2],
+      extent = map._.zoomBehavior.scaleExtent(),
+      translate = map._.zoomBehavior.translate(),
+      translate0 = [],
+      l = [],
+      view = { x: translate[0], y: translate[1], k: map._.zoomBehavior.scale() };
+
+    d3.event.preventDefault();
+
+    target_zoom = map._.zoomBehavior.scale() * (1 + factor * direction);
+
+    if (target_zoom < extent[0] || target_zoom > extent[1]) { return false; }
+
+    translate0 = [(center[0] - view.x) / view.k, (center[1] - view.y) / view.k];
+    view.k = target_zoom;
+    l = [translate0[0] * view.k + view.x, translate0[1] * view.k + view.y];
+
+    view.x += center[0] - l[0];
+    view.y += center[1] - l[1];
+
+    map._.zoomBehavior.scale(view.k);
+    map._.zoomBehavior.translate([view.x, view.y]);
     map.zoom();
-  }
-
-  function coordinates(point) {
-    var scale = zoom.scale(), translate = zoom.translate();
-    return [(point[0] - translate[0]) / scale, (point[1] - translate[1]) / scale];
-  }
-
-  function point(coordinates) {
-    var scale = zoom.scale(), translate = zoom.translate();
-    return [coordinates[0] * scale + translate[0], coordinates[1] * scale + translate[1]];
   }
 
   function buildTable(data) {
@@ -233,7 +230,7 @@ $( document ).ready( function() {
 
       //$tr.hover(onCountryTrIn, onCountryTrIn);
       colorScale = map.colorScale(tmpCountry["Calculated Percentage"]);
-      scale = _.find(colorRange, {color : colorScale})
+      scale = _.find(colorRange, { color: colorScale })
 
       if (scale.name == 'most-free') {
         $tr.insertBefore('table > tbody > tr.second-free-tr');
@@ -244,7 +241,6 @@ $( document ).ready( function() {
       } else if (scale.name == 'least-free') {
         $tr.insertBefore('table > tbody > tr.end-tr');
       }
-
     }
   }
 
@@ -255,17 +251,40 @@ $( document ).ready( function() {
     path.classed('active', !path.classed('active'));
   }
 
-  function annotation() {
-    map.svg.selectAll('path.unit')
-      .on('hover', function () {
-        var country = d3.select(this);
-        showModal(this.innerHTML.replace('title', 'p').replace('/title', '/p'));
-      });
+  function redraw() {
+    // adjust things when the window size changes
+    width = $('#graph').width();
+    height = $(document).height() - 120;
+
+    // update projection
+    map.path.projection().translate([width/2, height/2]).scale([width/6]);
+
+    // resize the map container
+    map.svg
+        .attr('width', width )
+        .attr('height', height);
+
+    map.svg.select('rect')
+        .attr('width', width )
+        .attr('height', height);
+    console.log('[]', [width, height]);
+    
+    // resize the map
+    map.svg.selectAll('path').attr('d', map.path);
   }
 
 
+  var throttleTimer;
+  function throttle() {
+    window.clearTimeout(throttleTimer);
+      throttleTimer = window.setTimeout(function() {
+        redraw();
+      }, 200);
+  }
+
+  setup();
+  d3.select(window).on("resize", throttle);
 
 })
 
 
-  

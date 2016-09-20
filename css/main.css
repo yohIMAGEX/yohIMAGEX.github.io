@@ -118,8 +118,9 @@ textarea {
 }
 
 .header-controls {
-    position: relative;
+    position: absolute;
     padding: 20px;
+    width: 100%;
 }
 
 #typeahead {
@@ -132,6 +133,7 @@ path.grayout {
 
 .zoom-buttons {
     position: absolute;
+    top: 50px;
     right: 20px;
 }
 

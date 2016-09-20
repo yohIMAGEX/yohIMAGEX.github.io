@@ -1,16 +1,17 @@
 'use strict';
 
 function addAccessor(obj, name, value) {
-    obj[name] = function (_) {
-        if (typeof _ === 'undefined') return obj.properties[name] || value;
-        obj.properties[name] = _;
-        return obj;
-    };
+  obj[name] = function (_) {
+    if (typeof _ === 'undefined') return obj.properties[name] || value;
+    obj.properties[name] = _;
+    return obj;
+  };
 }
 // This product includes color specifications and designs developed by Cynthia Brewer (http://colorbrewer.org/).
 "use strict";
 
-var colorbrewer = { YlGn: {
+var colorbrewer = {
+  YlGn: {
     3: ["#f7fcb9", "#addd8e", "#31a354"],
     4: ["#ffffcc", "#c2e699", "#78c679", "#238443"],
     5: ["#ffffcc", "#c2e699", "#78c679", "#31a354", "#006837"],
@@ -310,7 +311,8 @@ var colorbrewer = { YlGn: {
     10: ["#8dd3c7", "#ffffb3", "#bebada", "#fb8072", "#80b1d3", "#fdb462", "#b3de69", "#fccde5", "#d9d9d9", "#bc80bd"],
     11: ["#8dd3c7", "#ffffb3", "#bebada", "#fb8072", "#80b1d3", "#fdb462", "#b3de69", "#fccde5", "#d9d9d9", "#bc80bd", "#ccebc5"],
     12: ["#8dd3c7", "#ffffb3", "#bebada", "#fb8072", "#80b1d3", "#fdb462", "#b3de69", "#fccde5", "#d9d9d9", "#bc80bd", "#ccebc5", "#ffed6f"]
-  } };
+  }
+};
 'use strict';
 
 var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
@@ -318,186 +320,184 @@ var _createClass = (function () { function defineProperties(target, props) { for
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
 
 var Geomap = (function () {
-    function Geomap() {
-        _classCallCheck(this, Geomap);
+  function Geomap() {
+    _classCallCheck(this, Geomap);
 
-        // Set default properties optimized for naturalEarth projection.
-        this.properties = {
-            geofile: null,
-            height: null,
-            postUpdate: null,
-            projection: d3.geo.naturalEarth,
-            zoomObject: null,
-            rotate: [0, 0, 0],
-            scale: null,
-            translate: null,
-            unitId: 'iso3',
-            unitPrefix: 'unit-',
-            units: 'units',
-            unitTitle: function unitTitle(d) {
-                return d.properties.name;
-            },
-            width: null,
-            zoomFactor: 4
-        };
+    // Set default properties optimized for naturalEarth projection.
+    this.properties = {
+      geofile: null,
+      height: null,
+      postUpdate: null,
+      projection: d3.geo.mercator,
+      zoomObject: null,
+      rotate: [0, 0, 0],
+      scale: null,
+      translate: null,
+      unitId: 'iso3',
+      unitPrefix: 'unit-',
+      units: 'units',
+      onClick: null,
+      unitTitle: function unitTitle(d) {
+        return d.properties.name;
+      },
+      width: null,
+      zoomFactor: 4
+    };
 
-        // Setup methods to access properties.
-        for (var key in this.properties) {
-            addAccessor(this, key, this.properties[key]);
-        } // Store internal properties.
-        this._ = {centeredList:[]};
+    // Setup methods to access properties.
+    for (var key in this.properties) {
+      addAccessor(this, key, this.properties[key]);
+    } // Store internal properties.
+    this._ = { selectedList: [] };
+  }
+
+  _createClass(Geomap, [{
+    key: 'zoom',
+    value: function clicked() {
+      var self = this;
+
+      self._.zoomElement.attr("transform",
+        "translate(" + self._.zoomBehavior.translate() + ")" +
+        "scale(" + self._.zoomBehavior.scale() + ")"
+      );
     }
 
-    _createClass(Geomap, [{
-        key: 'zoom',
-        value: function clicked() {
-            var _this = this;
-            var translate = d3.event && d3.event.translate || [this.properties.width / 2, this.properties.height / 2];
-            var k = 1,
-                // x0 = this.properties.width / 2,
-                // y0 = this.properties.height / 2,
-                x0 = translate[0],
-                y0 = translate[1],
-                x = x0,
-                y = y0;
+    /**
+     * Load geo data once here and draw map. Call update at the end.
+     *
+     * By default map dimensions are calculated based on the width of the
+     * selection container element so they are responsive. Properties set before
+     * will be kept.
+     */
+  }, {
+      key: 'clicked',
+      value: function clicked(d) {
+        //debugger;
+        if (!d3.event || !d3.event.defaultPrevented) {
+          var _this = this;
 
-            if(this.zoomObject) {
-                console.log('this.zoomObject',this.zoomObject);
-            }
-
-            if ( this._.centeredList.length > 0 ) {
-                var centroid = this.path.centroid(_.last(this._.centeredList));
-                x = centroid[0];
-                y = centroid[1];
-               
-            }
-            k = this.properties.zoomFactor;
-
-            if(this.zoomObject) {
-
-            }
-            this.svg.selectAll('g.zoom').transition().duration(750).attr('transform', 'translate(' + x0 + ', ' + y0 + ')scale(' + k + ')translate(-' + x + ', -' + y + ')');
-        }
-
-        /**
-         * Load geo data once here and draw map. Call update at the end.
-         *
-         * By default map dimensions are calculated based on the width of the
-         * selection container element so they are responsive. Properties set before
-         * will be kept.
-         */
-    },{
-        key: 'clicked',
-        value: function clicked(d) {
-            var _this = this;
-
-            var k = 1,
-                x0 = this.properties.width / 2,
-                y0 = this.properties.height / 2,
-                x = x0,
-                y = y0;
-
-            if (d && d.hasOwnProperty('geometry') ) {
-                var centroid = this.path.centroid(d);
-                x = centroid[0];
-                y = centroid[1];
-                k = this.properties.zoomFactor;
-                var repeated = _.find(this._.centeredList, d);
-                console.log(d);
-                if(repeated) {
-                    _.remove(this._.centeredList, function(item) {
-                        return item.id == d.id;
-                    });
-                } else {
-                    if(this._.centeredList.length == 5) {
-                        this._.centeredList.shift();
-                    }
-
-                    this._.centeredList.push(d);
-                }
-                
+          if (d && d.hasOwnProperty('geometry')) {
+            var repeated = _.find(this._.selectedList, d);
+            if (repeated) {
+              _.remove(this._.selectedList, function (item) {
+                return item.id == d.id;
+              });
             } else {
-              
-                this.properties.zoomFactor = 1;
-            } 
-            console.log(this._.centeredList);
-            var founded = null;
-            var lodash = _;
-            
-            if( this._.centeredList.length > 0 ) {
-                this.svg.selectAll('path.unit').classed('grayout', true);
+              if (this._.selectedList.length == 5) {
+                this._.selectedList.shift();
+              }
 
-                $("#typeahead").val(_.map(_this._.centeredList, function(item) { 
-                    return item.id.toUpperCase();
-                }));
-                $("#typeahead").trigger("chosen:updated");
-                _.forEach(this._.centeredList, function(country) {
-                    var iso3 = country.id.toUpperCase();
-                    var countrySelector = 'path.unit.unit-'+iso3;
-                        _this.svg.selectAll(countrySelector).classed('active', true);
-                        _this.svg.selectAll(countrySelector).classed('grayout', false);
-                })
-            } else {
-                this.svg.selectAll('path.unit').classed('grayout', false);
-                this.svg.selectAll('path.unit').classed('active', false);
-                $("#typeahead").val([]);
+              this._.selectedList.push(d);
             }
-            
-            _this.zoom();
-            
-        }
 
-        /**
-         * Load geo data once here and draw map. Call update at the end.
-         *
-         * By default map dimensions are calculated based on the width of the
-         * selection container element so they are responsive. Properties set before
-         * will be kept.
-         */
+          } else {
+            this.properties.zoomFactor = 1;
+          }
+
+          var founded = null;
+          var lodash = _;
+          this.drawSelected();
+          this.properties.onClick(d);
+        }
+      }
     }, {
-        key: 'draw',
-        value: function draw(selection, self) {
-            if (!self.properties.width) self.properties.width = selection.node().getBoundingClientRect().width;
+      key: 'drawSelected',
+      value: function () {
+        //debugger;
+        var _this = this;
+        if (this._.selectedList.length > 0) {
+          this.svg.selectAll('path.unit').classed('grayout', true);
 
-            if (!self.properties.height) self.properties.height = self.properties.width / 1.92;
-
-            if (!self.properties.scale) self.properties.scale = self.properties.width / 5.8;
-
-            if (!self.properties.translate) self.properties.translate = [self.properties.width / 2, self.properties.height / 2];
-
-            self.svg = selection.append('svg').attr('width', self.properties.width).attr('height', self.properties.height);
-
-            self.svg.append('rect').attr('class', 'background').attr('width', self.properties.width).attr('height', self.properties.height).on('click', self.clicked.bind(self));
-
-            // Set map projection and path.
-            var proj = self.properties.projection().scale(self.properties.scale).translate(self.properties.translate).precision(.1);
-
-            // Not every projection supports rotation, e. g. albersUsa does not.
-            if (proj.hasOwnProperty('rotate') && self.properties.rotate) proj.rotate(self.properties.rotate);
-
-            self.path = d3.geo.path().projection(proj);
-
-            // Load and render geo data.
-            d3.json(self.properties.geofile, function (error, geo) {
-                self.geo = geo;
-                self.svg.append('g').attr('class', 'units zoom').selectAll('path').data(topojson.feature(geo, geo.objects[self.properties.units]).features).enter().append('path').attr('class', function (d) {
-                    return 'unit ' + self.properties.unitPrefix + d.id;
-                }).attr('d', self.path).on('click', self.clicked.bind(self));
-                self.update();
-            });
+          _.forEach(this._.selectedList, function (country) {
+            var iso3 = country.id.toUpperCase();
+            var countrySelector = 'path.unit.unit-' + iso3;
+            _this.svg.selectAll(countrySelector).classed('active', true);
+            _this.svg.selectAll(countrySelector).classed('grayout', false);
+          })
+        } else {
+          this.svg.selectAll('path.unit').classed('grayout', false);
+          this.svg.selectAll('path.unit').classed('active', false);
         }
+      }
     }, {
-        key: 'update',
-        value: function update() {
-            if (this.properties.postUpdate) this.properties.postUpdate();
-        }
+      key: 'draw',
+      value: function draw(selection, self) {
+
+        if (!self.properties.width) self.properties.width = selection.node().getBoundingClientRect().width;
+
+        if (!self.properties.height) self.properties.height = self.properties.width / 1.92;
+
+        if (!self.properties.scale) self.properties.scale = self.properties.width / 5.8;
+
+        if (!self.properties.translate) self.properties.translate = [self.properties.width / 2, self.properties.height / 2];
+
+        self._.zoomBehavior = d3.behavior.zoom()
+          .scaleExtent([1, 10])
+          .center([self.properties.width / 2, self.properties.height / 2])
+          .on("zoom", function (a, b) {
+            self.zoom();
+          });
+
+        self.svg = selection.append('svg')
+                      .attr('width', self.properties.width)
+                      .attr('height', self.properties.height);
+
+        self.svg.call(self._.zoomBehavior)
+          .on("dblclick.zoom", null)
+          .on("mousewheel.zoom", null)
+          .on("wheel.zoom", null)
+          .on("MozMousePixelScroll.zoom", null);
+
+
+        self.svg.append('rect')
+          .attr('class', 'background')
+          .attr('width', self.properties.width)
+          .attr('height', self.properties.height)
+          .on('click', self.clicked.bind(self));
+
+        // Set map projection and path.
+        var proj = self.properties.projection().scale(self.properties.scale).translate(self.properties.translate).precision(.1);
+
+        // Not every projection supports rotation, e. g. albersUsa does not.
+        if (proj.hasOwnProperty('rotate') && self.properties.rotate) proj.rotate(self.properties.rotate);
+
+        self.path = d3.geo.path().projection(proj);
+        self._.zoomElement = self.svg.append('g')
+          .attr('class', 'units zoom')
+          .call(self._.zoomBehavior)
+          .on("dblclick.zoom", null)
+          .on("mousewheel.zoom", null)
+          .on("wheel.zoom", null)
+          .on("MozMousePixelScroll.zoom", null);
+
+        // Load and render geo data.
+        d3.json(self.properties.geofile, function (error, geo) {
+          self.geo = geo;
+          self._.zoomElement.selectAll('path')
+            .data(topojson.feature(geo, geo.objects[self.properties.units]).features)
+            .enter()
+            .append('path')
+            .attr('class', function (d) {
+              return 'unit ' + self.properties.unitPrefix + d.id;
+            })
+            .attr('d', self.path)
+            .on('click', null)
+            .on('click', self.clicked.bind(self));
+          self.update();
+        });
+      }
+    }, {
+      key: 'update',
+      value: function update() {
+        if (this.properties.postUpdate) this.properties.postUpdate();
+      }
     }]);
 
-    return Geomap;
+  return Geomap;
 })();
 
 d3.geomap = function () {
-    return new Geomap();
+  return new Geomap();
 };
 'use strict';
 
@@ -510,187 +510,197 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
 var Choropleth = (function (_Geomap) {
-    _inherits(Choropleth, _Geomap);
+  _inherits(Choropleth, _Geomap);
 
-    function Choropleth() {
-        _classCallCheck(this, Choropleth);
+  function Choropleth() {
+    _classCallCheck(this, Choropleth);
 
-        _get(Object.getPrototypeOf(Choropleth.prototype), 'constructor', this).call(this);
+    _get(Object.getPrototypeOf(Choropleth.prototype), 'constructor', this).call(this);
 
-        var properties = {
-            colors: colorbrewer.OrRd[9],
-            column: null,
-            domain: null,
-            duration: null,
-            format: d3.format(',.02f'),
-            legend: false,
-            valueScale: d3.scale.quantize
-        };
+    var properties = {
+      colors: colorbrewer.OrRd[9],
+      column: null,
+      domain: null,
+      duration: null,
+      format: d3.format(',.02f'),
+      legend: false,
+      valueScale: d3.scale.quantize
+    };
 
-        for (var key in properties) {
-            this.properties[key] = properties[key];
-            addAccessor(this, key, properties[key]);
-        }
+    for (var key in properties) {
+      this.properties[key] = properties[key];
+      addAccessor(this, key, properties[key]);
     }
+  }
 
-    _createClass(Choropleth, [{
-        key: 'columnVal',
-        value: function columnVal(d) {
-            return +d[this.properties.column];
-        }
+  _createClass(Choropleth, [{
+    key: 'columnVal',
+    value: function columnVal(d) {
+      return +d[this.properties.column];
+    }
+  }, {
+      key: 'draw',
+      value: function draw(selection, self) {
+        self.data = selection.datum();
+        _get(Object.getPrototypeOf(Choropleth.prototype), 'draw', this).call(this, selection, self);
+      }
     }, {
-        key: 'draw',
-        value: function draw(selection, self) {
-            self.data = selection.datum();
-            _get(Object.getPrototypeOf(Choropleth.prototype), 'draw', this).call(this, selection, self);
-        }
+      key: 'defined',
+      value: function defined(val) {
+        return !(isNaN(val) || 'undefined' === typeof val || '' === val);
+      }
     }, {
-        key: 'defined',
-        value: function defined(val) {
-            return !(isNaN(val) || 'undefined' === typeof val || '' === val);
-        }
+      key: 'resize',
+      value: function resize(val) {
+        
+      }
     }, {
-        key: 'update',
-        value: function update() {
-            var self = this;
-            self.extent = d3.extent(self.data, self.columnVal.bind(self));
-            self.colorScale = self.properties.valueScale().domain(self.properties.domain || self.extent).range(self.properties.colors);
+      key: 'update',
+      value: function update() {
+        var self = this;
+        self.extent = d3.extent(self.data, self.columnVal.bind(self));
+        self.colorScale = self.properties.valueScale().domain(self.properties.domain || self.extent).range(self.properties.colors);
 
-            // Remove fill styles that may have been set previously.
-            self.svg.selectAll('path.unit').style('fill', null);
+        // Remove fill styles that may have been set previously.
+        self.svg.selectAll('path.unit').style('fill', null);
 
-            // Add new fill styles based on data values.
-            self.data.forEach(function (d) {
-                var uid = d[self.properties.unitId].trim(),
-                    val = d[self.properties.column].trim();
+        // Add new fill styles based on data values.
+        self.data.forEach(function (d) {
+          var uid = d[self.properties.unitId].trim(),
+            val = d[self.properties.column].trim();
 
-                // selectAll must be called and not just select, otherwise the data
-                // attribute of the selected path object is overwritten with self.data.
-                var unit = self.svg.selectAll('.' + self.properties.unitPrefix + uid);
+          // selectAll must be called and not just select, otherwise the data
+          // attribute of the selected path object is overwritten with self.data.
+          var unit = self.svg.selectAll('.' + self.properties.unitPrefix + uid);
 
-                // Data can contain values for non existing units and values can be empty or NaN.
-                if (!unit.empty() && self.defined(val)) {
-                    var fill = self.colorScale(val),
-                        text = self.properties.unitTitle(unit.datum());
+          // Data can contain values for non existing units and values can be empty or NaN.
+          if (!unit.empty() && self.defined(val)) {
+            var fill = self.colorScale(val),
+              text = self.properties.unitTitle(unit.datum());
 
-                    if (self.properties.duration) unit.transition().duration(self.properties.duration).style('fill', fill);else unit.style('fill', fill);
+            if (self.properties.duration) unit.transition().duration(self.properties.duration).style('fill', fill); else unit.style('fill', fill);
 
-                    // New title with column and value.
-                    val = self.properties.format(val);
-                    unit.select('title').text(text + '\n some additional info');
-                    d.color = fill;
-                }
-            });
+            // New title with column and value.
+            val = self.properties.format(val);
+            unit.select('title').text(text + '\n some additional info');
+            d.color = fill;
+          }
+        });
 
-            if (self.properties.legend) self.drawLegend(self.properties.legend);
+        if (self.properties.legend) self.drawLegend(self.properties.legend);
 
-            // Make sure postUpdate function is run if set.
-            _get(Object.getPrototypeOf(Choropleth.prototype), 'update', this).call(this);
+        // Make sure postUpdate function is run if set.
+        _get(Object.getPrototypeOf(Choropleth.prototype), 'update', this).call(this);
+      }
+
+      /**
+       * Draw legend including color scale and labels.
+       *
+       * If bounds is set to true, legend dimensions will be calculated based on
+       * the map dimensions. Otherwise bounds must be an object with width and
+       * height attributes.
+       */
+    }, {
+      key: 'drawLegend',
+      value: function drawLegend() {
+        var bounds = arguments.length <= 0 || arguments[0] === undefined ? null : arguments[0];
+
+        var self = this,
+          steps = self.properties.colors.length,
+          wBox = undefined,
+          hBox = undefined;
+
+        var wFactor = 10,
+          hFactor = 3;
+
+        if (bounds === true) {
+          wBox = self.properties.width / wFactor;
+          hBox = self.properties.height / hFactor;
+        } else {
+          wBox = bounds.width;
+          hBox = bounds.height;
+
+          wFactor = bounds.wFactor ? bounds.wFactor : wFactor;
         }
 
-        /**
-         * Draw legend including color scale and labels.
-         *
-         * If bounds is set to true, legend dimensions will be calculated based on
-         * the map dimensions. Otherwise bounds must be an object with width and
-         * height attributes.
-         */
-    }, {
-        key: 'drawLegend',
-        value: function drawLegend() {
-            var bounds = arguments.length <= 0 || arguments[0] === undefined ? null : arguments[0];
+        var wRect = wBox / (wFactor * .75),
+          hLegend = hBox - hBox / (hFactor * 1.8),
+          offsetText = wRect / 2,
+          offsetY = bounds.offsetY,
+          offsetX = self.properties.width - wBox,
+          tr = 'translate(' + offsetText + ',' + offsetText * 3 + ')';
 
-            var self = this,
-                steps = self.properties.colors.length,
-                wBox = undefined,
-                hBox = undefined;
+        // Remove possibly existing legend, before drawing.
+        self.svg.select('g.legend').remove();
 
-            var wFactor = 10,
-                hFactor = 3;
+        // Reverse a copy to not alter colors array.
+        var colors = self.properties.colors.slice().reverse(),
+          hRect = hLegend / steps,
+          offsetYFactor = hFactor / hRect;
 
-            if (bounds === true) {
-                wBox = self.properties.width / wFactor;
-                hBox = self.properties.height / hFactor;
-            } else {
-                wBox = bounds.width;
-                hBox = bounds.height;
+        var legend = self.svg.append('g').attr('class', 'legend').attr('width', wRect).attr('height', hBox).attr('transform', 'translate(' + offsetX + ',' + offsetY + ')');
+
+        legend.append('rect').style('fill', '#fff').attr('class', 'legend-bg').attr('width', wBox).attr('height', hBox);
+
+        // Draw a rectangle around the color scale to add a border.
+        legend.append('rect').attr('class', 'legend-bar').attr('width', wRect).attr('height', hLegend).attr('transform', tr);
+
+        var sg = legend.append('g').attr('transform', tr);
+
+        // Draw color scale.
+        sg.selectAll('rect').data(colors).enter().append('rect').attr('y', function (d, i) {
+          return i * hRect;
+        }).attr('fill', function (d, i) {
+          return colors[i];
+        }).attr('width', wRect).attr('height', hRect);
+
+        if (bounds.labels) {
+          // Determine display values for lower and upper thresholds. If the
+          // minimum data value is lower than the first element in the domain
+          // draw a less than sign. If the maximum data value is larger than the
+          // second domain element, draw a greater than sign.
+          var minDisplay = self.extent[0],
+            maxDisplay = self.extent[1],
+            addLower = false,
+            addGreater = false;
+
+          if (self.properties.domain) {
+            if (self.properties.domain[1] < maxDisplay) addGreater = true;
+            maxDisplay = self.properties.domain[1];
+
+            if (self.properties.domain[0] > minDisplay) addLower = true;
+            minDisplay = self.properties.domain[0];
+          }
+
+          // Draw color scale labels.
+          sg.selectAll('text').data(colors).enter().append('text').text(function (d, i) {
+            // The last element in the colors list corresponds to the lower threshold.
+            if (i === steps - 1) {
+              var text = self.properties.format(minDisplay);
+              if (addLower) text = '< ' + text;
+              return text;
             }
+            return self.properties.format(self.colorScale.invertExtent(d)[0]);
+          }).attr('class', function (d, i) {
+            return 'text-' + i;
+          }).attr('x', wRect + offsetText).attr('y', function (d, i) {
+            return i * hRect + (hRect + hRect * offsetYFactor);
+          });
 
-            var wRect = wBox / (wFactor * .75),
-                hLegend = hBox - hBox / (hFactor * 1.8),
-                offsetText = wRect / 2,
-                offsetY = self.properties.height - hBox - 25,
-                offsetX = self.properties.width - wBox,
-                tr = 'translate(' + offsetText + ',' + offsetText * 3 + ')';
-
-            // Remove possibly existing legend, before drawing.
-            self.svg.select('g.legend').remove();
-
-            // Reverse a copy to not alter colors array.
-            var colors = self.properties.colors.slice().reverse(),
-                hRect = hLegend / steps,
-                offsetYFactor = hFactor / hRect;
-
-            var legend = self.svg.append('g').attr('class', 'legend').attr('width', wBox).attr('height', hBox).attr('transform', 'translate(' + offsetX + ',' + offsetY + ')');
-
-            legend.append('rect').style('fill', '#fff').attr('class', 'legend-bg').attr('width', wBox).attr('height', hBox);
-
-            // Draw a rectangle around the color scale to add a border.
-            legend.append('rect').attr('class', 'legend-bar').attr('width', wRect).attr('height', hLegend).attr('transform', tr);
-
-            var sg = legend.append('g').attr('transform', tr);
-
-            // Draw color scale.
-            sg.selectAll('rect').data(colors).enter().append('rect').attr('y', function (d, i) {
-                return i * hRect;
-            }).attr('fill', function (d, i) {
-                return colors[i];
-            }).attr('width', wRect).attr('height', hRect);
-
-            // Determine display values for lower and upper thresholds. If the
-            // minimum data value is lower than the first element in the domain
-            // draw a less than sign. If the maximum data value is larger than the
-            // second domain element, draw a greater than sign.
-            var minDisplay = self.extent[0],
-                maxDisplay = self.extent[1],
-                addLower = false,
-                addGreater = false;
-
-            if (self.properties.domain) {
-                if (self.properties.domain[1] < maxDisplay) addGreater = true;
-                maxDisplay = self.properties.domain[1];
-
-                if (self.properties.domain[0] > minDisplay) addLower = true;
-                minDisplay = self.properties.domain[0];
-            }
-
-            // Draw color scale labels.
-            sg.selectAll('text').data(colors).enter().append('text').text(function (d, i) {
-                // The last element in the colors list corresponds to the lower threshold.
-                if (i === steps - 1) {
-                    var text = self.properties.format(minDisplay);
-                    if (addLower) text = '< ' + text;
-                    return text;
-                }
-                return self.properties.format(self.colorScale.invertExtent(d)[0]);
-            }).attr('class', function (d, i) {
-                return 'text-' + i;
-            }).attr('x', wRect + offsetText).attr('y', function (d, i) {
-                return i * hRect + (hRect + hRect * offsetYFactor);
-            });
-
-            // Draw label for end of extent.
-            sg.append('text').text(function () {
-                var text = self.properties.format(maxDisplay);
-                if (addGreater) text = '> ' + text;
-                return text;
-            }).attr('x', wRect + offsetText).attr('y', offsetText * offsetYFactor * 2);
+          // Draw label for end of extent.
+          sg.append('text').text(function () {
+            var text = self.properties.format(maxDisplay);
+            if (addGreater) text = '> ' + text;
+            return text;
+          }).attr('x', wRect + offsetText).attr('y', offsetText * offsetYFactor * 2);
         }
+
+      }
     }]);
 
-    return Choropleth;
+  return Choropleth;
 })(Geomap);
 
 d3.geomap.choropleth = function () {
-    return new Choropleth();
+  return new Choropleth();
 };
