@@ -448,7 +448,6 @@ var Geomap = (function () {
           .on("wheel.zoom", null)
           .on("MozMousePixelScroll.zoom", null);
 
-
         self.svg.append('rect')
           .attr('class', 'background')
           .attr('width', self.properties.width)

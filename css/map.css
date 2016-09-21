@@ -1,0 +1,73 @@
+#map {
+    overflow-x: hidden;
+    position: relative;
+    height: 100%;
+    margin-top: 40px;
+}
+
+.play-button {
+    position: absolute;
+    bottom: 10px;
+    left: 10px;
+}
+
+.d3-slider {
+    position: absolute;
+    bottom: 20px;
+    left: 60px;
+    width: calc(100% - 100px);
+    background-color: white;
+}
+
+.header-controls {
+    position: absolute;
+    padding: 20px;
+    width: 100%;
+}
+
+#typeahead {
+    width: 100%;
+}
+
+path.grayout {
+    fill: lightgray !important;
+}
+
+.chart-buttons {
+    position: absolute;
+    left: 20px;
+}
+
+.chart-buttons button {
+    display: block;
+    margin-top: 10px;
+    font-size: 24px;
+}
+
+.legend-bg {
+  fill: #fff;
+  fill-opacity: 0.4; 
+}
+
+/* zoom */
+.zoom-buttons {
+    position: absolute;
+    top: 50px;
+    right: 20px;
+}
+
+.zoom-buttons button {
+    display: block;
+    margin-top: 10px;
+    font-size: 24px;
+}
+
+div#zoom-slide {
+    display: block;
+    width: .8em;
+    left: 20px;
+    position: relative;
+    bottom: initial;
+    margin-top: 5px;
+    margin-bottom: 5px;
+}

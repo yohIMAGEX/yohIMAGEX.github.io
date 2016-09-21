@@ -19,6 +19,7 @@
     <link rel="stylesheet" href="css/main.css">
     <link rel="stylesheet" href="css/layout.css">
     <link rel="stylesheet" href="css/sidenav.css">
+    <link rel="stylesheet" href="css/map.css">
     <link rel="stylesheet" href="css/navbar.css">
     
     <script src="js/vendor/modernizr-2.8.3.min.js"></script>
@@ -142,12 +143,10 @@
             </div>
             <div class="zoom-buttons">
               <button class="btn btn-default" id="zoom_in" data-zoom="+1"><i class="fa fa-search-plus" aria-hidden="true"></i></button>
+              <div id="zoom-slide"></div>
               <button class="btn btn-default" id="zoom_out" data-zoom="-1"><i class="fa fa-search-minus" aria-hidden="true"></i></button>
             </div>
             <div class="footer-controls">
-              <button type="button" id="button_play" class="btn play-button" onclick='buttonPlayPress()'>
-                        <i class="fa fa-play"></i>
-                    </button>
               <div id="slide"></div>
             </div>
 

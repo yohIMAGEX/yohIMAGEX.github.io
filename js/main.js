@@ -7,7 +7,7 @@ $(document).ready(function () {
   });
 
   var tooltip = d3.select('body').append('div')
-    .attr('class', 'hidden tooltip');
+    .attr('class', 'hidden tooltip-map');
 
   var margin = {};
   var path = null;
@@ -77,8 +77,29 @@ $(document).ready(function () {
 
     initTypeAhead(d3.selectAll(".unit").data());
 
+    $('#slide a.d3-slider-handle').popover({
+      content : function() {
+        return slider.value();
+      },
+      trigger : 'manual',
+      placement : 'top'
+    });
+
+    $('#slide a.d3-slider-handle').popover('show');
+
+    var ticker = null;
+
+    slider.on('slide', function() {
+      ticker = setInterval(moveYearTooltip,100);
+    });
+
     slider.on('slideend', function () {
       counter.setCounter(slider.value());
+      window.clearInterval(ticker);
+    });
+
+    zoomSlider.on('slide', function () {
+      zoom(zoomSlider.value());
     });
 
     buildTable(map.data);
@@ -88,7 +109,12 @@ $(document).ready(function () {
  
 
   var slider = d3.slider().min(2000).max(2016).step(1);
+  var zoomSlider = d3.slider().min(1).max(10).step(1).orientation("vertical");
+
+
   d3.select('#slide').call(slider);
+
+  d3.select('#zoom-slide').call(zoomSlider);
   window.slider = slider;
 
   var state = 'stop';
@@ -157,6 +183,8 @@ $(document).ready(function () {
   }
 
   function initTypeAhead(list) {
+    var $input = $('#typeahead');
+
     var countryArray = _.forEach(list, function (country) {
       $input.append($('<option>', {
         value: country.id,
@@ -186,18 +214,23 @@ $(document).ready(function () {
   function zoomClicked() {
     var direction = parseInt(this.getAttribute("data-zoom"));
     var clicked = d3.event.target,
-      factor = 0.2,
       target_zoom = 1,
-      center = [map.properties.width / 2, map.properties.height / 2],
+      factor = 1;
+
+    d3.event.preventDefault();
+
+    target_zoom = map._.zoomBehavior.scale() + (factor * direction);
+
+    zoom(target_zoom);
+  }
+
+  function zoom(target_zoom) {
+    var center = [map.properties.width / 2, map.properties.height / 2],
       extent = map._.zoomBehavior.scaleExtent(),
       translate = map._.zoomBehavior.translate(),
       translate0 = [],
       l = [],
       view = { x: translate[0], y: translate[1], k: map._.zoomBehavior.scale() };
-
-    d3.event.preventDefault();
-
-    target_zoom = map._.zoomBehavior.scale() * (1 + factor * direction);
 
     if (target_zoom < extent[0] || target_zoom > extent[1]) { return false; }
 
@@ -209,6 +242,7 @@ $(document).ready(function () {
     view.y += center[1] - l[1];
 
     map._.zoomBehavior.scale(view.k);
+    zoomSlider.value(view.k);
     map._.zoomBehavior.translate([view.x, view.y]);
     map.zoom();
   }
@@ -279,7 +313,17 @@ $(document).ready(function () {
     window.clearTimeout(throttleTimer);
       throttleTimer = window.setTimeout(function() {
         redraw();
+
+        $('.chosen-container').innerWidth($('#graph').innerWidth());
+        $('.chosen-container .search-field input').innerWidth($('#graph').innerWidth()-12);
+        $('.chzn-drop').innerWidth($('#graph').innerWidth()-2);
       }, 200);
+  }
+
+  function moveYearTooltip() {
+    var left = $('#slide  a.d3-slider-handle').position().left;
+    $('#slide .popover').css('left', (left - 35) + 'px');
+    $('#slide .popover .popover-content').html(slider.value());
   }
 
   setup();

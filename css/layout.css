@@ -57,7 +57,7 @@ body {
 .hidden {
     display: none;
 }
-div.tooltip {
+div.tooltip-map {
   width: 150px;
   color: #222;
   position: absolute;
@@ -69,7 +69,7 @@ div.tooltip {
   opacity: 1;
 }
 
-div.tooltip:after {
+div.tooltip-map:after {
   content: '';
   position: absolute;
   border-style: solid;
@@ -83,14 +83,14 @@ div.tooltip:after {
 }
 
 
-div.tooltip div.country-title {
+div.tooltip-map div.country-title {
   font-size: 14px;
   font-weight: bold;
   line-height: 14px;
   margin-bottom: 15px;
 }
 
-div.tooltip span.country-rank {
+div.tooltip-map span.country-rank {
   font-size: 20px;
   font-weight: bold;
   margin-left: 15px;
