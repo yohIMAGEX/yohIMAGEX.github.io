@@ -5,18 +5,73 @@
     margin-top: 40px;
 }
 
+#graph {
+    position: relative;
+}
+
 .play-button {
     position: absolute;
     bottom: 10px;
     left: 10px;
 }
 
-.d3-slider {
+div.footer-controls {
     position: absolute;
     bottom: 20px;
-    left: 60px;
-    width: calc(100% - 100px);
-    background-color: white;
+    width : calc(100% - 30px);
+    padding: 6px 15px;
+    margin-left: 15px;
+    margin-right: 15px;
+    background-color: #0074ac;
+    color: white;
+    border-radius: 3px;
+
+    -webkit-box-shadow: 1px 1px 5px 1px rgba(210,210,210,1);
+    -moz-box-shadow: 1px 1px 5px 1px rgba(210,210,210,1);
+    box-shadow: 1px 1px 5px 1px rgba(210,210,210,1);
+}
+
+div.footer-controls .popover {
+    color: #0577ab;
+    border-radius: 5px;
+    border: none;
+    font-size: 1.2em;
+}
+
+div.footer-controls .popover .popover-content { 
+    padding: 2px 15px;
+    font-size: 18px;
+    font-weight: bold;
+}
+
+div.footer-controls span.d3-slider {
+    display: inline-block;
+    background-color: #2d98c0;
+    width: calc(100% - 160px);
+    margin-left: 15px;
+    height: 3px;
+    border: none;
+    margin-bottom: 3px;
+}
+
+div.footer-controls span.d3-slider .d3-slider-handle {
+    border-radius: 10px;
+    border: 2px solid white;
+    background: initial;
+    background-color: #309bbb;
+    top: -8px;
+}
+
+div.footer-controls .timeline-value {
+    font-size: 12px;
+}
+
+div.footer-controls .timeline-value.min {
+    margin-left: 15px;
+}
+
+div.footer-controls .timeline-value.max {
+    margin-left: 15px;
 }
 
 .header-controls {
@@ -52,22 +107,38 @@ path.grayout {
 /* zoom */
 .zoom-buttons {
     position: absolute;
-    top: 50px;
-    right: 20px;
+    bottom: 80px;
+    right: 15px;
+    padding: 5px;
+    background-color: white;
+    border-radius: 3px;
+    
+    -webkit-box-shadow: 1px 1px 5px 1px rgba(210,210,210,1);
+    -moz-box-shadow: 1px 1px 5px 1px rgba(210,210,210,1);
+    box-shadow: 1px 1px 5px 1px rgba(210,210,210,1);
+
+    z-index: 3;
 }
 
-.zoom-buttons button {
+.zoom-buttons i {
     display: block;
-    margin-top: 10px;
-    font-size: 24px;
+    font-size: 18px;
 }
 
 div#zoom-slide {
     display: block;
-    width: .8em;
-    left: 20px;
+    width: 2px;
+    left: 6px;
     position: relative;
     bottom: initial;
     margin-top: 5px;
     margin-bottom: 5px;
+    height: 50px;
+}
+
+div#zoom-slide a.d3-slider-handle {
+    border-radius: 10px;
+    left: -8px;
+    background: #0074ac;
+    
 }

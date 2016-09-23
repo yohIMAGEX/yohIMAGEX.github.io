@@ -1,17 +1,17 @@
 
-.sidenav .country-list .label {
+.label {
   font-size: 15px;
 }
-.sidenav .country-list .label.label-most-free {
+.label.label-most-free {
   background-color: #00bbbc;
 }
-.sidenav .country-list .label.label-2nd-quart{
+.label.label-2nd-quart{
   background-color: #b8d051;
 }
-.sidenav .country-list .label.label-3rd-quart {
+.label.label-3rd-quart {
   background-color: #fcab4a;;
 }
-.sidenav .country-list .label.label-least-free {
+.label.label-least-free {
   background-color: #ee3b58;;
 }
 

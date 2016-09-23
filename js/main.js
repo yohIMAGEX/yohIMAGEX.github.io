@@ -15,6 +15,7 @@ $(document).ready(function () {
   var colors = colorGradient("#00bbbc", "#b8d051", 3);
   var $input = $('#typeahead');
   var selectedCountries = [];
+  var countriesData = null;
 
   colors = _.concat(
     colorGradient("#fcab4a", "#ee3b58", 3),
@@ -23,15 +24,23 @@ $(document).ready(function () {
   );
 
   var colorRange = [
-    { color: "#ee3b58", name: 'least-free', value: 3 },
-    { color: "#fcab4a", name: '3rd-quart', value: 2 },
-    { color: "#b8d051", name: '2nd-quart', value: 1 },
-    { color: "#00bbbc", name: 'most-free', value: 0 }
+    { color: "#ee3b58", name: 'least-free', value: 3, text: 'Least Free' },
+    { color: "#fcab4a", name: '3rd-quart', value: 2, text: '3rd Quartline' },
+    { color: "#b8d051", name: '2nd-quart', value: 1, text: '2nd Quartline' },
+    { color: "#00bbbc", name: 'most-free', value: 0, text: 'Most Free' }
   ];
+
+  var legendBounds = {
+    width: 20,
+    height: 150,
+    labels: false,
+    offsetY: 270,
+    wFactor: 3
+  };
 
   function setup() {
     var map = d3.geomap.choropleth()
-      .geofile('plugings/d3-geomap/topojson/world/countries.json')
+      .geofile('vendors/d3-geomap/topojson/world/countries.json')
       .height($(document).height() - 120)
       .width($('#graph').width())
       .projection(d3.geo.mercator)
@@ -40,20 +49,116 @@ $(document).ready(function () {
       .duration(500)
       .zoomFactor(1)
       .format(d3.format(',.02f'))
-      .legend({
-        width: 50,
-        height: 200,
-        labels: false,
-        offsetY: 180,
-        wFactor: 5
-      })
+      .legend(legendBounds)
       .onClick(function(country) {
         $("#typeahead").val(_.map(map._.selectedList, function(item) { 
             return item.id.toUpperCase();
         }));
 
         $("#typeahead").trigger("chosen:updated");
-        console.log('onClick');
+
+        var tab = 'world';
+        $("#typeahead").trigger("chosen:updated");
+
+        if($("#typeahead").val().length > 0) {
+          tab = 'country-info';
+
+          var selected = $("#typeahead").val();
+          var index = -1;
+          var target = d3.select("#selected-countries");
+          var $template = $('#template-country-info').html();
+
+          target.selectAll('div').remove();
+
+          selectedCountries = [];
+
+          _.forEach(countriesData, function(item) {
+            index = selected.indexOf(item.iso3);
+            if(index >= 0) {
+              selectedCountries.push(item);
+            }
+          });
+
+          var countryElements = target
+            .selectAll('div')
+            .data(selectedCountries)
+            .enter()
+            .append('div')
+            .append('div')
+            .attr('class', 'text-center');
+
+          countryElements
+            .append('div')
+            .append('span')
+            .attr('class', function(d) {
+              return 'country-flag flag flag-' + d.iso3.toLowerCase() + ' flag-5x';
+            });
+
+          countryElements
+            .append('h2').attr('class', 'country-name')
+            .html(function(d) {
+              return d['Country Name'];
+            });
+
+          countryElements
+            .append('h5').attr('class', 'ranking')
+            .append('span').attr('class', 'value')
+            .html(function(d) {
+              return d['Rank'] + '/10';
+            });
+          
+          
+          countryElements
+            .append('span')
+            .attr('class', function(d) {
+              var scale = _.find(colorRange, { color: d.color });
+              return 'label' + ' label-' + scale.name;
+            })
+            .html(function(d) {
+              var scale = _.find(colorRange, { color: d.color });
+              return scale.text;
+            });
+
+          countryElements
+            .append('hr');
+
+          var articles = [
+              { head: 'Population', image: 'http://lorempixel.com/150/100/', key: 'Population' },
+              { head: 'Calculated Number of Enslaved', image: 'http://lorempixel.com/150/100/', key: 'Calculated Number of Enslaved' },
+              { head: 'Estimated Enslaved (Lower Range)', image: 'http://lorempixel.com/150/100/', key: 'Estimated Enslaved (Lower Range)' },
+              { head: 'Estimate Enslaved (Upper Range)', image: 'http://lorempixel.com/150/100/', key: 'Estimate Enslaved (Upper Range)' },
+              { head: 'Calculated Percentage', image: 'http://lorempixel.com/150/100/', key: 'Calculated Percentage' }
+          ];
+
+          countryElements
+            .append('div').attr('class', "row")
+            .html(function(d) {
+              var html = '';
+              var divClass = 'col-md-6';
+              articles.forEach(function(article, i) {
+                console.log('i', i);
+
+                if(i == articles.length -1 && i % 2 == 0) {
+                  divClass += ' col-sm-offset-3';
+                }
+
+                html += '<div class="' + divClass +  '">';
+                html += '<h5>' + article.head + '</h5>';
+                html += '<img src="' + article.image + '" style="width: 100%;">';
+                html += '<span>' + d[article.key] + '</span>';
+                html += '</div>';
+              })
+
+              return html;
+            });
+
+          countryElements
+            .append('hr');
+        } 
+
+        
+
+        $('.nav-pills a[href="#' + tab + '"]').tab('show');
       })
       .postUpdate(postUpdateMap);
     window.map = map;
@@ -62,6 +167,8 @@ $(document).ready(function () {
       d3.select("#graph")
         .datum(data)
         .call(map.draw, map);
+      
+      countriesData = data;
     });
   }
 
@@ -72,7 +179,7 @@ $(document).ready(function () {
 
     map.drawSelected();
 
-    d3.selectAll("button[data-zoom]")
+    d3.selectAll("i[data-zoom]")
       .on("click", zoomClicked);
 
     initTypeAhead(d3.selectAll(".unit").data());
@@ -102,20 +209,19 @@ $(document).ready(function () {
       zoom(zoomSlider.value());
     });
 
-    buildTable(map.data);
+    buildTable(countriesData);
     initMapPopUp();
   }
 
  
 
-  var slider = d3.slider().min(2000).max(2016).step(1);
+  var slider = d3.slider().min(2000).max(2016);
   var zoomSlider = d3.slider().min(1).max(10).step(1).orientation("vertical");
 
 
   d3.select('#slide').call(slider);
 
   d3.select('#zoom-slide').call(zoomSlider);
-  window.slider = slider;
 
   var state = 'stop';
 
@@ -157,28 +263,35 @@ $(document).ready(function () {
     button.select("i").attr('class', "fa fa-play");
   }
   window.buttonStopPress = buttonStopPress;
-
+  var tmpCountry = null;
   function initMapPopUp() {
+    d3.selectAll(".unit").on("mouseover", function (d) { 
+      tmpCountry = _.find(map.data, { iso3: d.id });
+
+      var score = tmpCountry ? parseFloat(tmpCountry['Calculated Percentage'], 10).toFixed(2) : 'N/A';
+      tooltip
+        .classed('hidden', false)
+        .html("<div class=\"text-center country-title\">" + d.properties.name + "</div>" +
+            "<div><span class=\"flag flag-" + d.id.toLowerCase() + " flag-2x pull-left\"></span>" +
+            "<span class=\"country-rank pull-rigth\"> " + score + " </span><div class=\"clear-both\"/></div>");
+    });
+
     d3.selectAll(".unit").on("mousemove", function (d) {
-      var mouse = d3.mouse(map.svg.node()).map(function (d) {
-        return parseInt(d);
-      });
-      var tmpCountry = _.find(map.data, { iso3: d.id });
+      var event = d3.event;
+      
       if (tmpCountry) {
-        var score = parseFloat(tmpCountry['Calculated Percentage'], 10)
-          .toFixed(2);
-        tooltip.classed('hidden', false)
-          .attr('style', 'left:' + (mouse[0] + $('.col-sm-3.col-md-3.sidenav').outerWidth() - 55) +
-            'px; top:' + (mouse[1] - 60) + 'px')
-          .html("<div class=\"text-center country-title\">" + d.properties.name + "</div>" +
-            "<span class=\"flag flag-" + d.id.toLowerCase() + " flag-3x\"></span>" +
-            "<span class=\"country-rank\"> " + score + " </span>");
+        
+        tooltip
+          .classed('hidden', false)
+          .attr('style', 'left:' + (event.pageX - 50) +
+            'px; top:' + (event.pageY - (tooltip.node().getBoundingClientRect().height + 15) ) + 'px');
       }
 
     });
 
     d3.selectAll(".unit").on("mouseout", function (d) {
       tooltip.classed('hidden', true);
+      tmpCountry = null;
     });
   }
 
@@ -192,15 +305,14 @@ $(document).ready(function () {
       }));
     });
 
-    $input.chosen({
-      max_selected_options: 5,
-      no_results_text: "Oops, nothing found!"
+    $input.select2({
+      maximumSelectionLength: 2
     });
 
-    $input.chosen().change(function (event, value) {
-      var countryCode = value.selected || value.deselected;
-      zoomToCountry(countryCode);
-    });
+    // $input.chosen().change(function (event, value) {
+    //   var countryCode = value.selected || value.deselected;
+    //   zoomToCountry(countryCode);
+    // });
   }
 
   function zoomToCountry(id) {
@@ -264,7 +376,7 @@ $(document).ready(function () {
 
       //$tr.hover(onCountryTrIn, onCountryTrIn);
       colorScale = map.colorScale(tmpCountry["Calculated Percentage"]);
-      scale = _.find(colorRange, { color: colorScale })
+      scale = _.find(colorRange, { color: colorScale });
 
       if (scale.name == 'most-free') {
         $tr.insertBefore('table > tbody > tr.second-free-tr');
@@ -305,6 +417,8 @@ $(document).ready(function () {
     
     // resize the map
     map.svg.selectAll('path').attr('d', map.path);
+    map.width(width);
+    map.drawLegend(legendBounds);
   }
 
 
@@ -313,17 +427,18 @@ $(document).ready(function () {
     window.clearTimeout(throttleTimer);
       throttleTimer = window.setTimeout(function() {
         redraw();
-
-        $('.chosen-container').innerWidth($('#graph').innerWidth());
-        $('.chosen-container .search-field input').innerWidth($('#graph').innerWidth()-12);
-        $('.chzn-drop').innerWidth($('#graph').innerWidth()-2);
       }, 200);
   }
 
   function moveYearTooltip() {
     var left = $('#slide  a.d3-slider-handle').position().left;
     $('#slide .popover').css('left', (left - 35) + 'px');
-    $('#slide .popover .popover-content').html(slider.value());
+
+    $('#slide .popover .popover-content')
+      .html(parseInt(
+        slider.value(),
+        10
+      ));
   }
 
   setup();
