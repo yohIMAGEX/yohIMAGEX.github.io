@@ -16,24 +16,26 @@ body {
 /* Set gray background color and 100% height */
 
 /* Hide for mobile, show later */
+
+
 .sidenav {
-  display: none;
+  position: fixed;
+  top: 52px;
+  bottom: 0;
+  left: 0;
+  z-index: 1000;
+  display: block;
+  padding: 0;
+  overflow-x: hidden;
   overflow-y: scroll;
+  background-color: white;
+  border-right: 1px solid #eee;
+
+  -webkit-box-shadow: 1px 1px 5px 1px rgba(0,0,0,0.2);
+  -moz-box-shadow: 1px 1px 5px 1px rgba(0,0,0,0.2);
+  box-shadow: 1px 1px 5px 1px rgba(0,0,0,0.2);
 }
-@media (min-width: 768px) {
-  .sidenav {
-    position: fixed;
-    top: 52px;
-    bottom: 0;
-    left: 0;
-    z-index: 1000;
-    display: block;
-    padding: 20px;
-    overflow-x: hidden;
-    background-color: #f5f5f5;
-    border-right: 1px solid #eee;
-  }
-}
+
 
 
 /*
@@ -41,7 +43,8 @@ body {
  */
 
 .main {
-  padding: 60px 0px;
+  padding: 52px 0 0 0;
+  background-color: whitesmoke;
 }
 @media (min-width: 768px) {
   .main {

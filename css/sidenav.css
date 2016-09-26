@@ -1,3 +1,16 @@
+.sidenav .nav.nav-pills.nav-justified li a {
+  background-color: whitesmoke;
+  color: black;
+}
+
+.sidenav .nav.nav-pills.nav-justified li.active a {
+  background-color: white;
+  color: black;
+}
+
+.sidenav .tab-pane {
+  padding: 10px;
+}
 
 .label {
   font-size: 15px;
@@ -26,4 +39,24 @@
 }
 .color-least-free .rank, .color-least-free .value {
   color: #ee3b58;
+}
+
+.country-info--item {
+  padding-top: 10px;
+  margin-bottom: 10px;
+
+  -webkit-box-shadow: 1px 1px 5px 1px rgba(0,0,0,0.2);
+  -moz-box-shadow: 1px 1px 5px 1px rgba(0,0,0,0.2);
+  box-shadow: 1px 1px 5px 1px rgba(0,0,0,0.2);
+}
+
+.country-info--item .row {
+  margin-left: 0;
+  margin-right: 0;
+}
+
+.country-info--item .article-value {
+  text-overflow: ellipsis;
+  width: 100%;
+  overflow: hidden;
 }

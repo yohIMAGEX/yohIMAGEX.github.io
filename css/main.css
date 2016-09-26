@@ -269,3 +269,7 @@ textarea {
 .pointer {
   cursor: pointer;
 }
+
+.select2-rendered__match {
+  text-decoration: underline;
+}

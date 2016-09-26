@@ -30,135 +30,25 @@ $(document).ready(function () {
     { color: "#00bbbc", name: 'most-free', value: 0, text: 'Most Free' }
   ];
 
-  var legendBounds = {
-    width: 20,
-    height: 150,
-    labels: false,
-    offsetY: 270,
-    wFactor: 3
-  };
-
   function setup() {
     var map = d3.geomap.choropleth()
       .geofile('vendors/d3-geomap/topojson/world/countries.json')
-      .height($(document).height() - 120)
-      .width($('#graph').width())
+      .height($(document).height() - 52)
+      //.width($('#graph').width())
       .projection(d3.geo.mercator)
       .colors(_.map(colorRange, 'color'))
       .column('Calculated Percentage')
       .duration(500)
       .zoomFactor(1)
       .format(d3.format(',.02f'))
-      .legend(legendBounds)
+      //.legend(legendBounds)
+      .legend(false)
       .onClick(function(country) {
-        $("#typeahead").val(_.map(map._.selectedList, function(item) { 
-            return item.id.toUpperCase();
-        }));
-
-        $("#typeahead").trigger("chosen:updated");
-
-        var tab = 'world';
-        $("#typeahead").trigger("chosen:updated");
-
-        if($("#typeahead").val().length > 0) {
-          tab = 'country-info';
-
-          var selected = $("#typeahead").val();
-          var index = -1;
-          var target = d3.select("#selected-countries");
-          var $template = $('#template-country-info').html();
-
-          target.selectAll('div').remove();
-
-          selectedCountries = [];
-
-          _.forEach(countriesData, function(item) {
-            index = selected.indexOf(item.iso3);
-            if(index >= 0) {
-              selectedCountries.push(item);
-            }
-          });
-
-          var countryElements = target
-            .selectAll('div')
-            .data(selectedCountries)
-            .enter()
-            .append('div')
-            .append('div')
-            .attr('class', 'text-center');
-
-          countryElements
-            .append('div')
-            .append('span')
-            .attr('class', function(d) {
-              return 'country-flag flag flag-' + d.iso3.toLowerCase() + ' flag-5x';
-            });
-
-          countryElements
-            .append('h2').attr('class', 'country-name')
-            .html(function(d) {
-              return d['Country Name'];
-            });
-
-          countryElements
-            .append('h5').attr('class', 'ranking')
-            .append('span').attr('class', 'value')
-            .html(function(d) {
-              return d['Rank'] + '/10';
-            });
-          
-          
-          countryElements
-            .append('span')
-            .attr('class', function(d) {
-              var scale = _.find(colorRange, { color: d.color });
-              return 'label' + ' label-' + scale.name;
-            })
-            .html(function(d) {
-              var scale = _.find(colorRange, { color: d.color });
-              return scale.text;
-            });
-
-          countryElements
-            .append('hr');
-
-          var articles = [
-              { head: 'Population', image: 'http://lorempixel.com/150/100/', key: 'Population' },
-              { head: 'Calculated Number of Enslaved', image: 'http://lorempixel.com/150/100/', key: 'Calculated Number of Enslaved' },
-              { head: 'Estimated Enslaved (Lower Range)', image: 'http://lorempixel.com/150/100/', key: 'Estimated Enslaved (Lower Range)' },
-              { head: 'Estimate Enslaved (Upper Range)', image: 'http://lorempixel.com/150/100/', key: 'Estimate Enslaved (Upper Range)' },
-              { head: 'Calculated Percentage', image: 'http://lorempixel.com/150/100/', key: 'Calculated Percentage' }
-          ];
-
-          countryElements
-            .append('div').attr('class', "row")
-            .html(function(d) {
-              var html = '';
-              var divClass = 'col-md-6';
-              articles.forEach(function(article, i) {
-                console.log('i', i);
-
-                if(i == articles.length -1 && i % 2 == 0) {
-                  divClass += ' col-sm-offset-3';
-                }
-
-                html += '<div class="' + divClass +  '">';
-                html += '<h5>' + article.head + '</h5>';
-                html += '<img src="' + article.image + '" style="width: 100%;">';
-                html += '<span>' + d[article.key] + '</span>';
-                html += '</div>';
-              })
-
-              return html;
-            });
-
-          countryElements
-            .append('hr');
-        } 
-
-        
-
-        $('.nav-pills a[href="#' + tab + '"]').tab('show');
+        if(country) {
+          afterClick();
+          showCountryInfoPanel();
+        }
+        $('#typeahead').select2("close");
       })
       .postUpdate(postUpdateMap);
     window.map = map;
@@ -211,6 +101,9 @@ $(document).ready(function () {
 
     buildTable(countriesData);
     initMapPopUp();
+
+    drawLegend();
+    throttle();
   }
 
  
@@ -264,6 +157,7 @@ $(document).ready(function () {
   }
   window.buttonStopPress = buttonStopPress;
   var tmpCountry = null;
+  
   function initMapPopUp() {
     d3.selectAll(".unit").on("mouseover", function (d) { 
       tmpCountry = _.find(map.data, { iso3: d.id });
@@ -279,13 +173,10 @@ $(document).ready(function () {
     d3.selectAll(".unit").on("mousemove", function (d) {
       var event = d3.event;
       
-      if (tmpCountry) {
-        
-        tooltip
-          .classed('hidden', false)
-          .attr('style', 'left:' + (event.pageX - 50) +
-            'px; top:' + (event.pageY - (tooltip.node().getBoundingClientRect().height + 15) ) + 'px');
-      }
+      tooltip
+        .classed('hidden', false)
+        .attr('style', 'left:' + (event.pageX - 50) +
+          'px; top:' + (event.pageY - (tooltip.node().getBoundingClientRect().height + 15) ) + 'px');
 
     });
 
@@ -305,23 +196,78 @@ $(document).ready(function () {
       }));
     });
 
+    var query = {};
+
+    function markMatch (text, term) {
+      // Find where the match is
+      var match = text.toUpperCase().indexOf(term.toUpperCase());
+
+      var $result = $('<span></span>');
+
+      // If there is no match, move on
+      if (match < 0) {
+        return $result.text(text);
+      }
+
+      // Put in whatever text is before the match
+      $result.text(text.substring(0, match));
+
+      // Mark the match
+      var $match = $('<span class="select2-rendered__match"></span>');
+      $match.text(text.substring(match, match + term.length));
+
+      // Append the matching text
+      $result.append($match);
+
+      // Put in whatever is after the match
+      $result.append(text.substring(match + term.length));
+
+      return $result;
+    }
+
     $input.select2({
-      maximumSelectionLength: 2
+      templateResult: function (item) {
+        // No need to template the searching text
+        if (item.loading) {
+          return item.text;
+        }
+
+        var term = query.term || '';
+        var $result = markMatch(item.text, term);
+
+        return $result;
+      },
+      language: {
+        searching: function (params) {
+          // Intercept the query as it is happening
+          query = params;
+
+          // Change this to be appropriate for your application
+          return 'Searching…';
+        }
+      },
+      maximumSelectionLength: 5
     });
 
-    // $input.chosen().change(function (event, value) {
-    //   var countryCode = value.selected || value.deselected;
-    //   zoomToCountry(countryCode);
-    // });
+    $input.on("select2:unselect", function (e) { 
+      if(e && e.params && e.params.data && e.params.data.id) {
+        selectCountry(e.params.data.id); 
+      }
+    });
+
+    $input.on("select2:select", function (e) { 
+      if(e && e.params && e.params.data && e.params.data.id) {
+        selectCountry(e.params.data.id); 
+      }
+    });
   }
 
-  function zoomToCountry(id) {
+  function selectCountry(id) {
     var country = _.find(d3.selectAll(".unit").data(), { id: id });
     if (country) {
       map.clicked(country);
     }
   }
-  window.zoomToCountry = zoomToCountry;
 
   function zoomClicked() {
     var direction = parseInt(this.getAttribute("data-zoom"));
@@ -390,17 +336,10 @@ $(document).ready(function () {
     }
   }
 
-  function onCountryTrIn() {
-    var countryId = $(this).attr('data-iso3');
-    zoomToCountry(countryId);
-    var path = d3.select('path.unit-' + countryId);
-    path.classed('active', !path.classed('active'));
-  }
-
   function redraw() {
     // adjust things when the window size changes
     width = $('#graph').width();
-    height = $(document).height() - 120;
+    height = $(document).height() - 52;
 
     // update projection
     map.path.projection().translate([width/2, height/2]).scale([width/6]);
@@ -418,7 +357,7 @@ $(document).ready(function () {
     // resize the map
     map.svg.selectAll('path').attr('d', map.path);
     map.width(width);
-    map.drawLegend(legendBounds);
+    //map.drawLegend(legendBounds);
   }
 
 
@@ -439,6 +378,149 @@ $(document).ready(function () {
         slider.value(),
         10
       ));
+  }
+
+  function afterClick(country) {
+      $("#typeahead").val(_.map(map._.selectedList, function(item) { 
+          return item.id.toUpperCase();
+      })).trigger("change");
+  }
+
+  function showCountryInfoPanel() {
+      var tab = 'world';
+      var selected = $("#typeahead").val();
+      console.log('selected', selected)
+      if(selected.length > 0) {
+        tab = 'country-info';
+
+        var index = -1;
+        var target = d3.select("#selected-countries");
+
+        selectedCountries = [];
+
+        var foundedCountries = [];
+        var newCountries = [];
+
+        var tmpClass = '';
+        _.forEach(countriesData, function(item) {
+          index = selected.indexOf(item.iso3);
+          if(index >= 0) {
+            selectedCountries.push(item);
+          }
+        });
+
+        d3.selectAll('li.select2-selection__choice').each(function(a, q, t, i) { console.log(a,q,t,i, this)});
+
+        target.selectAll('div').remove();
+        var selection = target
+          .selectAll('div')
+          .data(selectedCountries);
+        var countryElements = selection
+          .enter()
+          .append('div')
+          .attr('class', function(d) {
+            return 'country-info--item country-' + d.iso3;
+          })
+          .append('div')
+          .attr('class', 'text-center');
+
+        countryElements
+          .append('div')
+          .append('span')
+          .attr('class', function(d) {
+            console.log('d', d);
+            return 'country-flag flag flag-' + d.iso3.toLowerCase() + ' flag-5x';
+          });
+
+        countryElements
+          .append('h2').attr('class', 'country-name')
+          .html(function(d) {
+            return d['Country Name'];
+          });
+
+        countryElements
+          .append('h5').attr('class', 'ranking')
+          .append('span').attr('class', 'value')
+          .html(function(d) {
+            return d['Rank'] + '/10';
+          });
+        
+        
+        countryElements
+          .append('span')
+          .attr('class', function(d) {
+            var scale = _.find(colorRange, { color: d.color });
+            return 'label' + ' label-' + scale.name;
+          })
+          .html(function(d) {
+            var scale = _.find(colorRange, { color: d.color });
+            return scale.text;
+          });
+
+        countryElements
+          .append('hr');
+
+        var articles = [
+            { head: 'Population', image: 'fa-area-chart', key: 'Population' },
+            { head: 'Calculated Number of Enslaved', image: 'fa-first-order', key: 'Calculated Number of Enslaved' },
+            { head: 'Estimated Enslaved (Lower Range)', image: 'fa-archive', key: 'Estimated Enslaved (Lower Range)' },
+            { head: 'Estimate Enslaved (Upper Range)', image: 'fa-building', key: 'Estimate Enslaved (Upper Range)' },
+            { head: 'Calculated Percentage', image: 'fa-beer', key: 'Calculated Percentage' }
+        ];
+
+        countryElements
+          .append('div').attr('class', "row")
+          .html(function(d) {
+            var html = '';
+            var divClass = 'col-md-6';
+            articles.forEach(function(article, i) {
+              if(i == articles.length -1 && i % 2 == 0) {
+                divClass += ' col-sm-offset-3';
+              }
+              var detached = d3.select(document.createElement("div"))
+                .classed(divClass, true);
+
+              detached
+                .append('h5')
+                .html(article.head);
+
+              detached
+                .append('div')
+                .append('i').style('font-size', '25px')
+                .classed('fa ' + article.image, true)
+                .attr('aria-hidden', true);
+              
+              detached
+                .append('h5')
+                .classed('article-value', true)
+                .html(d[article.key]);
+
+              html += detached.node().outerHTML;
+            });
+
+            console.log('html',html)
+
+            return html;
+          });
+
+        selection
+          .exit()
+          .remove();
+      } 
+
+    $('.nav-pills a[href="#' + tab + '"]').tab('show');
+  }
+
+  function drawLegend() {
+    d3.select('.legend-panel')
+      .selectAll('div')
+      .data(_.reverse(colorRange))
+      .enter()
+      .append('div')
+      .classed('legend-color', true) 
+      .style('background-color', function(colorItem) {
+        return colorItem.color;
+      })
   }
 
   setup();
