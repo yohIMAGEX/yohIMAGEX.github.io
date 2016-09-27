@@ -30,10 +30,50 @@ $(document).ready(function () {
     { color: "#00bbbc", name: 'most-free', value: 0, text: 'Most Free' }
   ];
 
+  //build sliders
+  var state = 'pause';
+  var slider = d3.slider().min(2000).max(2016);
+  $('.freedom-ranking-year').html(2000);
+  var zoomSlider = d3.slider().min(1).max(10).step(1).orientation("vertical");
+
+  d3.select('#slide').call(slider);
+
+  d3.select('#zoom-slide').call(zoomSlider);
+
+  $('#slide a.d3-slider-handle').popover({
+    content : function() {
+      return slider.value();
+    },
+    trigger : 'manual',
+    placement : 'top'
+  });
+
+  //end build sliders
+  
+  //set zoom buttoms events
+  d3.selectAll("i[data-zoom]")
+      .on("click", zoomClicked);
+
+  var counter = new Counter({
+    from: 2000,
+    to: 2016,
+    increment: 0.08,
+    interval: 100,
+    onFinish: function (val) {
+      slider.value(val);
+      moveYearTooltip();
+      buttonPlayPress();
+    },
+    callback: function (val) {
+      slider.value(val);
+      moveYearTooltip();
+    }
+  });
+
   function setup() {
     var map = d3.geomap.choropleth()
       .geofile('vendors/d3-geomap/topojson/world/countries.json')
-      .height($(document).height() - 52)
+      .height($(document).height() - 82)
       //.width($('#graph').width())
       .projection(d3.geo.mercator)
       .colors(_.map(colorRange, 'color'))
@@ -60,6 +100,10 @@ $(document).ready(function () {
       
       countriesData = data;
     });
+
+    d3.select('.timeline-buttom').on('click', function() {
+      buttonPlayPress();
+    });
   }
 
   function postUpdateMap() {
@@ -67,26 +111,15 @@ $(document).ready(function () {
     var width = parseFloat(window.map.svg.attr('width'));
     var height = parseFloat(window.map.svg.attr('height'));
 
-    map.drawSelected();
-
-    d3.selectAll("i[data-zoom]")
-      .on("click", zoomClicked);
-
+    //map.drawSelected();
     initTypeAhead(d3.selectAll(".unit").data());
-
-    $('#slide a.d3-slider-handle').popover({
-      content : function() {
-        return slider.value();
-      },
-      trigger : 'manual',
-      placement : 'top'
-    });
 
     $('#slide a.d3-slider-handle').popover('show');
 
     var ticker = null;
 
     slider.on('slide', function() {
+      counter.setCounter(slider.value());
       ticker = setInterval(moveYearTooltip,100);
     });
 
@@ -106,46 +139,26 @@ $(document).ready(function () {
     throttle();
   }
 
- 
-
-  var slider = d3.slider().min(2000).max(2016);
-  var zoomSlider = d3.slider().min(1).max(10).step(1).orientation("vertical");
-
-
-  d3.select('#slide').call(slider);
-
-  d3.select('#zoom-slide').call(zoomSlider);
-
-  var state = 'stop';
-
-  var counter = new Counter({
-    from: 2000,
-    to: 2016,
-    increment: 0.5,
-    onFinish: function () {
-      buttonPlayPress();
-    },
-    callback: function (val) {
-      slider.value(val);
-    }
-  });
+  
 
   function buttonPlayPress() {
-    if (state == 'stop') {
-      state = 'play';
-      var button = d3.select("#button_play").classed('btn-success', true);
-      button.select("i").attr('class', "fa fa-pause");
-      counter.start();
-    }
-    else if (state == 'play' || state == 'resume') {
+    if (state == 'play' || state == 'resume') {
       state = 'pause';
-      d3.select("#button_play i").attr('class', "fa fa-play");
+      d3.select(".timeline-buttom i")
+        .attr('class', "fa fa-play");
+      d3.select('.timeline-text')
+        .text('play');
       counter.pause();
     }
     else if (state == 'pause') {
-      state = 'resume';
-      d3.select("#button_play i").attr('class', "fa fa-pause");
-      counter.resume();
+      if(counter.getCounter() < counter.getTo()) {
+        state = 'resume';
+        d3.select(".timeline-buttom i")
+          .attr('class', "fa fa-pause");
+        d3.select('.timeline-text')
+          .text('pause');
+        counter.resume();
+      }
     }
   }
   window.buttonPlayPress = buttonPlayPress;
@@ -339,7 +352,7 @@ $(document).ready(function () {
   function redraw() {
     // adjust things when the window size changes
     width = $('#graph').width();
-    height = $(document).height() - 52;
+    height = $(document).height() - 82;
 
     // update projection
     map.path.projection().translate([width/2, height/2]).scale([width/6]);
@@ -352,12 +365,9 @@ $(document).ready(function () {
     map.svg.select('rect')
         .attr('width', width )
         .attr('height', height);
-    console.log('[]', [width, height]);
-    
-    // resize the map
+
     map.svg.selectAll('path').attr('d', map.path);
     map.width(width);
-    //map.drawLegend(legendBounds);
   }
 
 
@@ -370,14 +380,11 @@ $(document).ready(function () {
   }
 
   function moveYearTooltip() {
+    var year = parseInt(slider.value(),10);
     var left = $('#slide  a.d3-slider-handle').position().left;
     $('#slide .popover').css('left', (left - 35) + 'px');
-
-    $('#slide .popover .popover-content')
-      .html(parseInt(
-        slider.value(),
-        10
-      ));
+    $('.freedom-ranking-year').html(year);
+    $('#slide .popover .popover-content').html(year);
   }
 
   function afterClick(country) {
@@ -389,7 +396,7 @@ $(document).ready(function () {
   function showCountryInfoPanel() {
       var tab = 'world';
       var selected = $("#typeahead").val();
-      console.log('selected', selected)
+
       if(selected.length > 0) {
         tab = 'country-info';
 
@@ -409,8 +416,6 @@ $(document).ready(function () {
           }
         });
 
-        d3.selectAll('li.select2-selection__choice').each(function(a, q, t, i) { console.log(a,q,t,i, this)});
-
         target.selectAll('div').remove();
         var selection = target
           .selectAll('div')
@@ -428,8 +433,7 @@ $(document).ready(function () {
           .append('div')
           .append('span')
           .attr('class', function(d) {
-            console.log('d', d);
-            return 'country-flag flag flag-' + d.iso3.toLowerCase() + ' flag-5x';
+            return 'country-flag flag flag-' + d.iso3.toLowerCase() + ' flag-3x';
           });
 
         countryElements
@@ -481,7 +485,8 @@ $(document).ready(function () {
                 .classed(divClass, true);
 
               detached
-                .append('h5')
+                .append('div')
+                .classed('article-title', true)
                 .html(article.head);
 
               detached
@@ -498,15 +503,17 @@ $(document).ready(function () {
               html += detached.node().outerHTML;
             });
 
-            console.log('html',html)
-
             return html;
           });
 
         selection
           .exit()
           .remove();
-      } 
+        
+        d3.select('.country-info--tab').classed('disabled', false);
+      } else {
+        d3.select('.country-info--tab').classed('disabled', true);
+      }
 
     $('.nav-pills a[href="#' + tab + '"]').tab('show');
   }

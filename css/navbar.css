@@ -7,8 +7,49 @@
 
 .navbar .title-page {
   font-size: 24px;
-  color: white;
-  line-height: 45px;
+  color: black;
+  line-height: 80px;
+}
+
+.navbar.fraser-navbar .navbar-nav li a {
+  padding: 10px;
+  color: darkgray;
+  font-size: 12px;
+}
+
+
+
+.navbar.fraser-navbar .bottom-navbar .navbar-nav li a {
+  padding: 10px;
+  color: #565656;
+  font-size: 16px;
+  font-weight: bold;
+  line-height: 18px;
+}
+
+.navbar.fraser-navbar .bottom-navbar .navbar-nav li.active {
+  border-bottom : 2px solid #0a7ab0;
+  
+}
+
+.navbar.fraser-navbar .bottom-navbar .navbar-nav li.active a{
+  color: #0a7ab0;
+}
+
+.navbar.fraser-navbar .navbar-form {
+  margin-bottom: 0;
+}
+
+.navbar .bottom-navbar .navbar-nav {
+  margin-left: 0;
+  margin-right: 0;
+}
+
+.navbar .bottom-navbar {
+  clear: both;
+  float: right;
+  margin-left: 0;
+  margin-right: 0;
 }
 
 

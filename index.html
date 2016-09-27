@@ -9,7 +9,7 @@
     <script src="vendors/d3-geomap/vendor/d3.geomap.dependencies.min.js"></script>
     <script src="vendors/d3-geomap/js/d3.geomap.js"></script>
     <script src="js/vendor/modernizr-2.8.3.min.js"></script>
-    <script src="js/colors.js"></script>
+    
 
     <link rel="stylesheet" href="vendors/d3-geomap/css/d3.geomap.css">
     <link rel="stylesheet" href="vendors/jquery-ui-1.12.0.custom/jquery-ui.min.css">
@@ -20,6 +20,7 @@
     <link rel="stylesheet" href="node_modules/d3.slider/d3.slider.css" >
     <link rel="stylesheet" href="css/normalize.css">
     <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="css/search.css">
     <link rel="stylesheet" href="css/layout.css">
     <link rel="stylesheet" href="css/sidenav.css">
     <link rel="stylesheet" href="css/map.css">
@@ -29,7 +30,7 @@
   </head>
 
   <body>
-    <nav class="navbar navbar-inverse">
+    <nav class="navbar fraser-navbar">
       <div class="container-fluid">
         <div class="navbar-header">
           <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false"
@@ -40,27 +41,36 @@
             <span class="icon-bar"></span>
           </button>
           <a class="navbar-brand" href="#">
-            <img src="img/faser.png" height="25">
+            <img src="img/faser.png" height="55">
           </a>
         </div>
         
         <div id="navbar" class="navbar-collapse collapse">
           <span class="h3 title-page">Economic Freedom</span>
-          <ul class="nav navbar-nav navbar-right">
-            <li class="active"><a href="./">Map <span class="sr-only">(current)</span></a></li>
-            <li><a href="../navbar-static-top/">Graph</a></li>
-            <li><a href="../navbar-fixed-top/">Nav</a></li>
-            <li>
-              <form class="navbar-form" role="search">
-                <div class="input-group">
-                  <input type="text" class="form-control" placeholder="Search" name="srch-term" id="srch-term">
-                  <div class="input-group-btn">
-                    <button class="btn btn-default" type="submit"><i class="glyphicon glyphicon-search"></i></button>
+          <span>
+            <ul class="nav navbar-nav navbar-right">
+              <li class="active"><a href="./">Understanding Economic Freedom</a></li>
+              <li><a href="../navbar-static-top/">Methology</a></li>
+              <li><a href="../navbar-fixed-top/">Blog</a></li>
+              <li><a href="../navbar-fixed-top/">Contact Us</a></li>
+              <li>
+                <form class="navbar-form" role="search">
+                  <div class="input-group">
+                    <input type="text" class="search-field" placeholder="Search" name="srch-term" id="srch-term">
                   </div>
-                </div>
-              </form>
-            </li>
-          </ul>
+                </form>
+              </li>
+              <li class="bottom-navbar">
+                <ul class="nav navbar-nav navbar-right">
+                  <li class="active"><a href="#map">Map</a></li>
+                  <li><a href="#graph">Graph</a></li>
+                  <li><a href="#dataset">Dataset</a></li>
+                  <li><a href="#research">Research</a></li>
+                  <li><a href="#our-network">Our Network</a></li>
+                </ul>
+              </li>
+            </ul>
+          </span>
         </div>
         <!--/.nav-collapse -->
       </div>
@@ -70,15 +80,15 @@
       <div class="row-fluid">
         <div class="col-sm-3 col-md-3 sidenav">
           <ul class="nav nav-pills nav-justified">
-            <li class="active"><a data-toggle="tab" href="#world">World Raking</a></li>
-            <li class="country-info--tab"><a data-toggle="tab" href="#country-info">Country Info</a></li>
+            <li class="map-tab active"><a data-toggle="tab" href="#world">World Raking</a></li>
+            <li class="country-info--tab disabled"><a data-toggle="tab" href="#country-info">Country Info</a></li>
           </ul>
           <div class="tab-content">
             <!-- WORLD TAB -->
             <div id="world" class="tab-pane fade in active">
               <div class="text-center">
                 <h5>Economic Freedom Ranking</h5>
-                <h2>2015</h2>
+                <h2 class="freedom-ranking-year"></h2>
               </div>
               <div class="share-block">
                 <div class="pull-left">Share on : </div>
@@ -148,14 +158,14 @@
             </div>
             <div class="footer-controls">
               <span>
-                <span class="timeline-buttom play">
+                <span class="timeline-buttom play pointer">
                   <i class="fa fa-play" aria-hidden="true"></i>
                 </span>
                 <span class="timeline-text">
                   play
                 </span>
               </span>
-              <span class="timeline-value min">1987</span>
+              <span class="timeline-value min">2000</span>
               <span id="slide"></span>
               <span class="timeline-value max">2016</span
             </div>
@@ -173,6 +183,7 @@
     <script src="js/plugins.js"></script>
     <script src="js/clock.js"></script>
     <script src="js/main.js"></script>
+    <script src="js/colors.js"></script>
     
   </body>
 

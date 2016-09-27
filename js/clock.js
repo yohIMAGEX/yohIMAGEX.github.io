@@ -11,6 +11,12 @@ var Counter  = function(obj) {
   self.callback = (obj.callback && typeof(obj.callback) === "function") ? obj.callback : function(){};
   self.onFinish = (obj.onFinish && typeof(obj.onFinish) === "function") ? obj.onFinish : function(){};
   return {
+    getTo : function() {
+      return self.to;
+    },
+    getCounter : function() {
+      return self.counter;
+    },
     setCounter : function(value) {
       self.counter = value;
     },
