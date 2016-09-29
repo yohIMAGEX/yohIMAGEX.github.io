@@ -16,7 +16,7 @@ $(document).ready(function () {
   var $input = $('#typeahead');
   var selectedCountries = [];
   var countriesData = null;
-  var maxTimelineDuration = 400; //8 seconds
+  var maxTimelineDuration = 8000; //8 seconds
 
   colors = _.concat(
     colorGradient("#fcab4a", "#ee3b58", 3),
@@ -119,7 +119,7 @@ $(document).ready(function () {
                 .step(1)
                 .snap(false);
 
-      // update slider max min values
+      // update slider element max min values
       d3.select('.timeline-value.min').html(range[0]);
       d3.select('.timeline-value.max').html(range[1]);
 
