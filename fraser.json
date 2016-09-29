@@ -6,7 +6,375 @@
         "iso_code": "AGO",
         "country": "Angola",
         "summary_index": "5.08",
-        "somedata_index": "3.08"
+        "somedata_index": "3.08",
+        "Area1": [
+          {
+            "label": "Size of Government",
+            "value": "4.44"
+          }
+        ],
+        "Area1.1A": [
+          {
+            "label": "Government Consumption",
+            "value": "0.00"
+          },
+          {
+            "label": "1A data",
+            "value": "46.63"
+          }
+        ],
+        "Area1.1B": [
+          {
+            "label": "Transfers and subsidies",
+            "value": "8.25"
+          },
+          {
+            "label": "1B data",
+            "value": "6.91"
+          }
+        ],
+        "Area1.1C": [
+          {
+            "label": "Government enterprises and investment",
+            "value": "0.00"
+          },
+          {
+            "label": "1C data",
+            "value": "81.60"
+          }
+        ],
+        "Area1.1D": [
+          {
+            "label": "Top marginal tax rate",
+            "value": "9.50"
+          }
+        ],
+        "Area2": [
+          {
+            "label": "Legal System & Property Rights",
+            "value": "3.21"
+          }
+        ],
+        "Area3": [
+          {
+            "label": "Sound Money",
+            "value": "6.91"
+          }
+        ],
+        "Area4": [
+          {
+            "label": "Freedom to trade internationally",
+            "value": "5.11"
+          }
+        ],
+        "Area5": [
+          {
+            "label": "errorlabel",
+            "value": "5.72"
+          }
+        ],
+        "Area1.1D.1Di": [
+          {
+            "label": "1Di data",
+            "value": "17.00"
+          },
+          {
+            "label": "Top marginal income tax rate",
+            "value": "10.00"
+          }
+        ],
+        "Area1.1D.1Dii": [
+          {
+            "label": "Top marginal income and payroll tax rate",
+            "value": "9.00"
+          },
+          {
+            "label": "1Dii data",
+            "value": "25.00"
+          }
+        ],
+        "Area2.2A": [
+          {
+            "label": "Judicial independence",
+            "value": "1.84"
+          }
+        ],
+        "Area2.2B": [
+          {
+            "label": "Impartial courts",
+            "value": "1.97"
+          }
+        ],
+        "Area2.2C": [
+          {
+            "label": "Protection of property rights",
+            "value": "2.51"
+          }
+        ],
+        "Area2.2D": [
+          {
+            "label": " Military interference in rule of law and politics",
+            "value": "3.33"
+          }
+        ],
+        "Area2.2E": [
+          {
+            "label": "Integrity of the legal system",
+            "value": "4.17"
+          }
+        ],
+        "Area2.2F": [
+          {
+            "label": "Legal enforcement of contracts",
+            "value": "2.30"
+          }
+        ],
+        "Area2.2G": [
+          {
+            "label": "Regulatory restrictions on the sale of real property",
+            "value": "5.46"
+          }
+        ],
+        "Area2.2H": [
+          {
+            "label": "Reliability of police",
+            "value": "3.02"
+          }
+        ],
+        "Area2.2I": [
+          {
+            "label": "Business costs of crime",
+            "value": "4.29"
+          }
+        ],
+        "Area3.3A": [
+          {
+            "label": "Money growth",
+            "value": "8.47"
+          },
+          {
+            "label": "3A data",
+            "value": "7.66"
+          }
+        ],
+        "Area3.3B": [
+          {
+            "label": "Standard deviation of inflation",
+            "value": "5.63"
+          },
+          {
+            "label": "3B data",
+            "value": "10.93"
+          }
+        ],
+        "Area3.3C": [
+          {
+            "label": "3C data",
+            "value": "7.28"
+          },
+          {
+            "label": "Inflation: Most recent year",
+            "value": "8.54"
+          }
+        ],
+        "Area3.3D": [
+          {
+            "label": "Freedom to own foreign currency bank accounts",
+            "value": "5.00"
+          }
+        ],
+        "Area4.4A": [
+          {
+            "label": "Tariffs",
+            "value": "7.09"
+          }
+        ],
+        "Area4.4B": [
+          {
+            "label": " Regulatory trade barriers",
+            "value": "1.57"
+          }
+        ],
+        "Area4.4C": [
+          {
+            "label": "Black market exchange rates",
+            "value": "10.00"
+          }
+        ],
+        "Area4.4D": [
+          {
+            "label": "Controls of the movement of capital and people",
+            "value": "1.78"
+          }
+        ],
+        "Area4.4A.4Ai": [
+          {
+            "label": " Revenue from trade taxes (% of trade sector)",
+            "value": "9.29"
+          },
+          {
+            "label": "4Ai data",
+            "value": "1.07"
+          }
+        ],
+        "Area4.4A.4Aii": [
+          {
+            "label": "4Aii data",
+            "value": "11.40"
+          },
+          {
+            "label": "Mean tariff rate",
+            "value": "7.72"
+          }
+        ],
+        "Area4.4A.4Aiii": [
+          {
+            "label": "Standard deviation of tariff rates",
+            "value": "4.25"
+          },
+          {
+            "label": "4Aiii data",
+            "value": "14.36"
+          }
+        ],
+        "Area4.4B.4Bi": [
+          {
+            "label": " Non-tariff trade barriers",
+            "value": "3.13"
+          }
+        ],
+        "Area4.4B.4Bii": [
+          {
+            "label": "Compliance costs of importing and exporting",
+            "value": "0.00"
+          }
+        ],
+        "Area4.4D.4Di": [
+          {
+            "label": "Foreign ownership/investment restrictions",
+            "value": "2.95"
+          }
+        ],
+        "Area4.4D.4Dii": [
+          {
+            "label": "Capital controls",
+            "value": "2.31"
+          }
+        ],
+        "Area4.4D.4Diii": [
+          {
+            "label": "Freedom of foreigners to visit",
+            "value": "0.08"
+          }
+        ],
+        "Area5.5A": [
+          {
+            "label": "Credit market regulations",
+            "value": "8.73"
+          }
+        ],
+        "Area5.5B": [
+          {
+            "label": "Labor market regulations",
+            "value": "2.45"
+          }
+        ],
+        "Area5.5C": [
+          {
+            "label": "errorlabel",
+            "value": "5.98"
+          }
+        ],
+        "Area5.5A.5Ai": [
+          {
+            "label": "Ownership of banks",
+            "value": "8.00"
+          }
+        ],
+        "Area5.5A.5Aii": [
+          {
+            "label": "Private sector credit",
+            "value": "9.19"
+          }
+        ],
+        "Area5.5A.5Aiii": [
+          {
+            "label": "Interest rate controls/negative real interest rates)",
+            "value": "9.00"
+          }
+        ],
+        "Area5.5B.5Bi": [
+          {
+            "label": "Hiring regulations and minimum wage",
+            "value": "2.23"
+          }
+        ],
+        "Area5.5B.5Bii": [
+          {
+            "label": "Hiring and firing regulations",
+            "value": "2.66"
+          }
+        ],
+        "Area5.5B.5Biii": [
+          {
+            "label": "Centralized collective bargaining",
+            "value": "5.17"
+          }
+        ],
+        "Area5.5B.5Biv": [
+          {
+            "label": "Hours Regulations",
+            "value": "4.00"
+          }
+        ],
+        "Area5.5B.5Bv": [
+          {
+            "label": "Mandated cost of worker dismissal",
+            "value": "0.64"
+          }
+        ],
+        "Area5.5B.5Bvi": [
+          {
+            "label": "Conscription",
+            "value": "0.00"
+          }
+        ],
+        "Area5.5C.5Ci": [
+          {
+            "label": "Administrative requirements",
+            "value": "2.76"
+          }
+        ],
+        "Area5.5C.5Cii": [
+          {
+            "label": "Bureaucracy costs",
+            "value": "7.94"
+          }
+        ],
+        "Area5.5C.5Ciii": [
+          {
+            "label": "Starting\n",
+            "value": "8.55"
+          }
+        ],
+        "Area5.5C.5Civ": [
+          {
+            "label": "errorlabel",
+            "value": "2.17"
+          }
+        ],
+        "Area5.5C.5Cv": [
+          {
+            "label": "errorlabel",
+            "value": "7.61"
+          }
+        ],
+        "Area5.5C.5Cvi": [
+          {
+            "label": "errorlabel",
+            "value": "6.84"
+          }
+        ]
       },
       {
         "iso_code": "ALB",

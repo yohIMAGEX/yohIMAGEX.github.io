@@ -62,12 +62,16 @@
 }
 
 .country-info--item .article-title {
-  text-overflow: ellipsis;
+  display: table-cell;
+  
+  height: 70px;
   width: 100%;
-  overflow: hidden;
-  white-space: nowrap;
-  font-size: 14px;
   color: darkgray;
+  font-size: 14px;
+  vertical-align: bottom;
+  text-align: center;
+
+  padding-bottom: 10px;
 }
 
 .country-info--item .article-value {

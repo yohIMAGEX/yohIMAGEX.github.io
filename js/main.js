@@ -105,7 +105,7 @@ $(document).ready(function () {
       .postUpdate(postUpdateMap);
     window.map = map;
 
-    d3.json('fraser.json?1', function (error, fraserData) {
+    d3.json('fraser.json?2', function (error, fraserData) {
       console.log('fraserData', fraserData);
       window.fraserData = fraserData.data;
       // build time slider
@@ -457,7 +457,8 @@ $(document).ready(function () {
         var tmpClass = '';
 
         d3.selectAll('.unit.active').each(function(unit) {
-          selectedCountries.push(unit)
+          selectedCountries.push(unit);
+          console.log('selectedCountries', selectedCountries);
         });
 
         target.selectAll('div').remove();
@@ -498,22 +499,22 @@ $(document).ready(function () {
           .append('span')
           .attr('class', function(d) {
             var scale = _.find(colorRange, { color: _.get(d, 'data.color', null)});
-            return scale ? 'label' + ' label-' + scale.name : '';
+            return scale ? 'label' + ' label-' + scale.name : 'label label-nodata';
           })
           .html(function(d) {
             var scale = _.find(colorRange, { color: _.get(d, 'data.color', null)});
-            return scale ? scale.text : '';
+            return scale ? scale.text : 'no data';
           });
 
         countryElements
           .append('hr');
 
         var articles = [
-            { head: 'Article 1', image: 'fa-area-chart', key: 'summary_index' },
-            { head: 'Article 2', image: 'fa-first-order', key: 'summary_index' },
-            { head: 'Article 3', image: 'fa-archive', key: 'summary_index' },
-            { head: 'Article 4', image: 'fa-building', key: 'summary_index' },
-            { head: 'Article 5', image: 'fa-beer', key: 'summary_index' }
+            { head: 'Size of Government', image: 'fa-area-chart', key: 'Area1[0].value' },
+            { head: 'Legal Structure and Security of Property Rights', image: 'fa-first-order', key: 'Area2[0].value' },
+            { head: 'Access to Sound Money', image: 'fa-archive', key: 'Area3[0].value' },
+            { head: 'Freedom to Trade Internationally', image: 'fa-building', key: 'Area4[0].value' },
+            { head: 'Regulation of Credit, Labor and Business', image: 'fa-beer', key: 'Area5[0].value' }
         ];
 
         countryElements
@@ -521,17 +522,24 @@ $(document).ready(function () {
           .html(function(d) {
             var html = '';
             var divClass = 'col-md-6';
+            var infoValue = null;
+            var infoTitle = null;
             articles.forEach(function(article, i) {
               if(i == articles.length -1 && i % 2 == 0) {
                 divClass += ' col-sm-offset-3';
               }
+
+              infoValue = _.get(d, 'data.' + article.key, 'N/A');
+              infoTitle = article.head;
+
+              console.log('data >>> ', d, article);
               var detached = d3.select(document.createElement("div"))
                 .classed(divClass, true);
 
               detached
                 .append('div')
                 .classed('article-title', true)
-                .html(article.head);
+                .html(infoTitle);
 
               detached
                 .append('div')
@@ -542,10 +550,7 @@ $(document).ready(function () {
               detached
                 .append('h5')
                 .classed('article-value', true)
-                .html(function() {
-                  
-                  return d.data && d.data[article.key] ? d.data[article.key] : 'N/A';
-                });
+                .html(infoValue);
 
               html += detached.node().outerHTML;
             });
