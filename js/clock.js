@@ -11,6 +11,13 @@ var Counter  = function(obj) {
   self.callback = (obj.callback && typeof(obj.callback) === "function") ? obj.callback : function(){};
   self.onFinish = (obj.onFinish && typeof(obj.onFinish) === "function") ? obj.onFinish : function(){};
   return {
+    setRange : function(range) {
+      self.from = range[0];
+      self.to = range[1];
+    },
+    setInterval : function(interval) {
+      self.interval = interval;
+    },
     getTo : function() {
       return self.to;
     },

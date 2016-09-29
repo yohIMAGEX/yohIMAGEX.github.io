@@ -16,6 +16,7 @@ $(document).ready(function () {
   var $input = $('#typeahead');
   var selectedCountries = [];
   var countriesData = null;
+  var maxTimelineDuration = 400; //8 seconds
 
   colors = _.concat(
     colorGradient("#fcab4a", "#ee3b58", 3),
@@ -25,27 +26,23 @@ $(document).ready(function () {
 
   var colorRange = [
     { color: "#ee3b58", name: 'least-free', value: 3, text: 'Least Free' },
-    { color: "#fcab4a", name: '3rd-quart', value: 2, text: '3rd Quartline' },
-    { color: "#b8d051", name: '2nd-quart', value: 1, text: '2nd Quartline' },
+    { color: "#fcab4a", name: '3rd-quart', value: 2, text: '3rd Quartile' },
+    { color: "#b8d051", name: '2nd-quart', value: 1, text: '2nd Quartile' },
     { color: "#00bbbc", name: 'most-free', value: 0, text: 'Most Free' }
   ];
 
   //build sliders
   var state = 'pause';
   var slider = d3.slider().min(2000).max(2016);
-  $('.freedom-ranking-year').html(2000);
+  
   var zoomSlider = d3.slider().min(1).max(10).step(1).orientation("vertical");
 
   d3.select('#slide').call(slider);
 
   d3.select('#zoom-slide').call(zoomSlider);
 
-  $('#slide a.d3-slider-handle').popover({
-    content : function() {
-      return slider.value();
-    },
-    trigger : 'manual',
-    placement : 'top'
+  zoomSlider.on('slide', function () {
+    zoom(zoomSlider.value());
   });
 
   //end build sliders
@@ -53,20 +50,29 @@ $(document).ready(function () {
   //set zoom buttoms events
   d3.selectAll("i[data-zoom]")
       .on("click", zoomClicked);
-
+  var previousYear = 0;
+  var timer = null;
   var counter = new Counter({
     from: 2000,
     to: 2016,
-    increment: 0.08,
-    interval: 100,
+    increment: 1,
+    interval: 500,
     onFinish: function (val) {
       slider.value(val);
-      moveYearTooltip();
       buttonPlayPress();
+      var year = parseInt(val, 10);
+      if(year != previousYear) {
+        previousYear = year;
+        updateMapYear(year);
+      }
     },
     callback: function (val) {
       slider.value(val);
-      moveYearTooltip();
+      var year = parseInt(val, 10);
+      if(year != previousYear) {
+        previousYear = year;
+        updateMapYear(year);
+      }
     }
   });
 
@@ -77,12 +83,18 @@ $(document).ready(function () {
       //.width($('#graph').width())
       .projection(d3.geo.mercator)
       .colors(_.map(colorRange, 'color'))
-      .column('Calculated Percentage')
-      .duration(500)
-      .zoomFactor(1)
+      .column('summary_index')
+      .duration(false)
+      .zoomFactor(2)
+      .unitId('iso_code')
       .format(d3.format(',.02f'))
       //.legend(legendBounds)
       .legend(false)
+      .onGeofileLoad(function(data) {
+        initTypeAhead(data);
+        initMapPopUp();
+        drawLegend();
+      })
       .onClick(function(country) {
         if(country) {
           afterClick();
@@ -93,17 +105,69 @@ $(document).ready(function () {
       .postUpdate(postUpdateMap);
     window.map = map;
 
-    d3.csv('globalslaveryindex.csv', function (error, data) {
+    d3.json('fraser.json?1', function (error, fraserData) {
+      console.log('fraserData', fraserData);
+      window.fraserData = fraserData.data;
+      // build time slider
+      var range = d3.extent(d3.keys(fraserData.data)).map(function(i){
+        return parseInt(i, 10);
+      });
+
+      slider = d3.slider()
+                .min(range[0])
+                .max(range[1])
+                .step(1)
+                .snap(false);
+
+      // update slider max min values
+      d3.select('.timeline-value.min').html(range[0]);
+      d3.select('.timeline-value.max').html(range[1]);
+
+      slider.on('slide', function() {
+        counter.setCounter(slider.value());
+        updateMapYear(parseInt(slider.value(), 10));
+      });
+
+      slider.on('slideend', function () {
+        counter.setCounter(slider.value());
+        updateMapYear(parseInt(slider.value(), 10));
+      });
+
+      d3.select('#slide').selectAll('*').remove();
+      d3.select('#slide').call(slider);
+
+      counter.setRange(range); 
+      console.log('calculated interval', maxTimelineDuration / (range[1] - range[0]));
+      counter.setInterval(maxTimelineDuration / (range[1] - range[0]));
+      counter.setCounter(range[0]);
+      console.log('counter',counter);
+      // end build time slider
+
+      //create popover
+      $('#slide a.d3-slider-handle').popover({
+        content : function() {
+          return parseInt(slider.value(), 10);
+        },
+        container: '#slide a.d3-slider-handle',
+        trigger : 'manual',
+        placement : 'top'
+      });
+      $('#slide a.d3-slider-handle').popover('show');
+      //end create popover
+
       d3.select("#graph")
-        .datum(data)
+        .datum(fraserData.data[range[0]])
         .call(map.draw, map);
+
+      updateMapYear(range[0]);
       
-      countriesData = data;
+      countriesData = fraserData.data[range[0]];
     });
 
     d3.select('.timeline-buttom').on('click', function() {
       buttonPlayPress();
     });
+
   }
 
   function postUpdateMap() {
@@ -111,31 +175,10 @@ $(document).ready(function () {
     var width = parseFloat(window.map.svg.attr('width'));
     var height = parseFloat(window.map.svg.attr('height'));
 
-    //map.drawSelected();
-    initTypeAhead(d3.selectAll(".unit").data());
-
-    $('#slide a.d3-slider-handle').popover('show');
-
     var ticker = null;
 
-    slider.on('slide', function() {
-      counter.setCounter(slider.value());
-      ticker = setInterval(moveYearTooltip,100);
-    });
-
-    slider.on('slideend', function () {
-      counter.setCounter(slider.value());
-      window.clearInterval(ticker);
-    });
-
-    zoomSlider.on('slide', function () {
-      zoom(zoomSlider.value());
-    });
-
-    buildTable(countriesData);
-    initMapPopUp();
-
-    drawLegend();
+    buildTable();
+    showCountryInfoPanel();
     throttle();
   }
 
@@ -173,9 +216,9 @@ $(document).ready(function () {
   
   function initMapPopUp() {
     d3.selectAll(".unit").on("mouseover", function (d) { 
-      tmpCountry = _.find(map.data, { iso3: d.id });
+      tmpCountry = _.find(map.data, { iso_code: d.id });
 
-      var score = tmpCountry ? parseFloat(tmpCountry['Calculated Percentage'], 10).toFixed(2) : 'N/A';
+      var score = tmpCountry ? parseFloat(tmpCountry[map.column()], 10).toFixed(2) : 'N/A';
       tooltip
         .classed('hidden', false)
         .html("<div class=\"text-center country-title\">" + d.properties.name + "</div>" +
@@ -201,6 +244,8 @@ $(document).ready(function () {
 
   function initTypeAhead(list) {
     var $input = $('#typeahead');
+
+    $input.html('');
 
     var countryArray = _.forEach(list, function (country) {
       $input.append($('<option>', {
@@ -318,34 +363,42 @@ $(document).ready(function () {
     map.zoom();
   }
 
-  function buildTable(data) {
+  function buildTable() {
+    var data = fraserData[parseInt(slider.value(), 10)];
     var total = data.length;
     var quart = total / 4;
     var tmpCountry = null;
     var colorScale = null;
     var scale = null;
     var $tr = null;
+
+    d3.selectAll('.tr-country-row').remove()
+
+    data = _.sortBy(data, function(o) { return parseFloat(o[map.column()], 10) * -1; })
     for (var i = 0; i < total; i++) {
       tmpCountry = data[i];
-      $tr = $('<tr data-iso3="' + tmpCountry.iso3 + '">' +
-        '<td class="rank" style="color: ' + tmpCountry.color + '; ">' + tmpCountry.Rank + '</td>' +
-        '<td>' + tmpCountry['Country Name'] + '</td>' +
-        '<td class="value" style="color: ' + tmpCountry.color + '; ">' + parseFloat(tmpCountry['Calculated Percentage'], 10).toFixed(2) + '</td>' +
+      $tr = $('<tr class="tr-country-row" data-iso3="' + tmpCountry.iso_code + '">' +
+        '<td class="rank" style="color: ' + tmpCountry.color + '; ">' + (i + 1) + '</td>' +
+        '<td>' + tmpCountry.country + '</td>' +
+        '<td class="value" style="color: ' + tmpCountry.color + '; ">' + tmpCountry[map.column()] + '</td>' +
         '</tr>');
 
       //$tr.hover(onCountryTrIn, onCountryTrIn);
-      colorScale = map.colorScale(tmpCountry["Calculated Percentage"]);
+      colorScale = map.colorScale(tmpCountry[map.column()]);
       scale = _.find(colorRange, { color: colorScale });
 
-      if (scale.name == 'most-free') {
-        $tr.insertBefore('table > tbody > tr.second-free-tr');
-      } else if (scale.name == '2nd-quart') {
-        $tr.insertBefore('table > tbody > tr.third-free-tr');
-      } else if (scale.name == '3rd-quart') {
-        $tr.insertBefore('table > tbody > tr.least-free-tr');
-      } else if (scale.name == 'least-free') {
-        $tr.insertBefore('table > tbody > tr.end-tr');
+      if(scale) {
+        if (scale.name == 'most-free') {
+          $tr.insertBefore('table > tbody > tr.second-free-tr');
+        } else if (scale.name == '2nd-quart') {
+          $tr.insertBefore('table > tbody > tr.third-free-tr');
+        } else if (scale.name == '3rd-quart') {
+          $tr.insertBefore('table > tbody > tr.least-free-tr');
+        } else if (scale.name == 'least-free') {
+          $tr.insertBefore('table > tbody > tr.end-tr');
+        }
       }
+      
     }
   }
 
@@ -379,14 +432,6 @@ $(document).ready(function () {
       }, 200);
   }
 
-  function moveYearTooltip() {
-    var year = parseInt(slider.value(),10);
-    var left = $('#slide  a.d3-slider-handle').position().left;
-    $('#slide .popover').css('left', (left - 35) + 'px');
-    $('.freedom-ranking-year').html(year);
-    $('#slide .popover .popover-content').html(year);
-  }
-
   function afterClick(country) {
       $("#typeahead").val(_.map(map._.selectedList, function(item) { 
           return item.id.toUpperCase();
@@ -394,6 +439,7 @@ $(document).ready(function () {
   }
 
   function showCountryInfoPanel() {
+      countriesData = fraserData[parseInt(slider.value(), 10)] || [];
       var tab = 'world';
       var selected = $("#typeahead").val();
 
@@ -409,11 +455,9 @@ $(document).ready(function () {
         var newCountries = [];
 
         var tmpClass = '';
-        _.forEach(countriesData, function(item) {
-          index = selected.indexOf(item.iso3);
-          if(index >= 0) {
-            selectedCountries.push(item);
-          }
+
+        d3.selectAll('.unit.active').each(function(unit) {
+          selectedCountries.push(unit)
         });
 
         target.selectAll('div').remove();
@@ -424,7 +468,7 @@ $(document).ready(function () {
           .enter()
           .append('div')
           .attr('class', function(d) {
-            return 'country-info--item country-' + d.iso3;
+            return 'country-info--item country-' + d.id;
           })
           .append('div')
           .attr('class', 'text-center');
@@ -433,43 +477,43 @@ $(document).ready(function () {
           .append('div')
           .append('span')
           .attr('class', function(d) {
-            return 'country-flag flag flag-' + d.iso3.toLowerCase() + ' flag-3x';
+            return 'country-flag flag flag-' + d.id.toLowerCase() + ' flag-3x';
           });
 
         countryElements
           .append('h2').attr('class', 'country-name')
           .html(function(d) {
-            return d['Country Name'];
+            return d.properties.name;
           });
 
         countryElements
           .append('h5').attr('class', 'ranking')
           .append('span').attr('class', 'value')
           .html(function(d) {
-            return d['Rank'] + '/10';
+            return d.data && d.data[map.column()] ? d.data[map.column()] + '/10' : 'N/A';
           });
         
         
         countryElements
           .append('span')
           .attr('class', function(d) {
-            var scale = _.find(colorRange, { color: d.color });
-            return 'label' + ' label-' + scale.name;
+            var scale = _.find(colorRange, { color: _.get(d, 'data.color', null)});
+            return scale ? 'label' + ' label-' + scale.name : '';
           })
           .html(function(d) {
-            var scale = _.find(colorRange, { color: d.color });
-            return scale.text;
+            var scale = _.find(colorRange, { color: _.get(d, 'data.color', null)});
+            return scale ? scale.text : '';
           });
 
         countryElements
           .append('hr');
 
         var articles = [
-            { head: 'Population', image: 'fa-area-chart', key: 'Population' },
-            { head: 'Calculated Number of Enslaved', image: 'fa-first-order', key: 'Calculated Number of Enslaved' },
-            { head: 'Estimated Enslaved (Lower Range)', image: 'fa-archive', key: 'Estimated Enslaved (Lower Range)' },
-            { head: 'Estimate Enslaved (Upper Range)', image: 'fa-building', key: 'Estimate Enslaved (Upper Range)' },
-            { head: 'Calculated Percentage', image: 'fa-beer', key: 'Calculated Percentage' }
+            { head: 'Article 1', image: 'fa-area-chart', key: 'summary_index' },
+            { head: 'Article 2', image: 'fa-first-order', key: 'summary_index' },
+            { head: 'Article 3', image: 'fa-archive', key: 'summary_index' },
+            { head: 'Article 4', image: 'fa-building', key: 'summary_index' },
+            { head: 'Article 5', image: 'fa-beer', key: 'summary_index' }
         ];
 
         countryElements
@@ -498,7 +542,10 @@ $(document).ready(function () {
               detached
                 .append('h5')
                 .classed('article-value', true)
-                .html(d[article.key]);
+                .html(function() {
+                  
+                  return d.data && d.data[article.key] ? d.data[article.key] : 'N/A';
+                });
 
               html += detached.node().outerHTML;
             });
@@ -529,6 +576,16 @@ $(document).ready(function () {
         return colorItem.color;
       })
   }
+
+  function updateMapYear(value) {
+    $('.freedom-ranking-year').html(value);
+    $('#slide .popover .popover-content').html(value);
+
+    map.data = fraserData[value] || [];
+    map.update();
+  }
+
+  window.updateMapYear = updateMapYear;
 
   setup();
   d3.select(window).on("resize", throttle);

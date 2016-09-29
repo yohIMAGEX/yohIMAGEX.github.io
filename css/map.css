@@ -15,6 +15,17 @@ rect.background {
 
 .unit {
     fill: #878787;
+    stroke: #505050;
+}
+
+.unit.no-data {
+    fill: #9e9e9e;
+    stroke: #000000;
+}
+
+
+.unit.active {
+   
 }
 
 .play-button {
@@ -176,4 +187,12 @@ div#zoom-slide a.d3-slider-handle {
 .timeline-text {
     width: 39px;
     display: inline-block;
+}
+
+.select2-dropdown {
+    top: 5px;
+}
+
+.select2-container--default.select2-container--open.select2-container--below .select2-selection--multiple {
+    border-radius: 20px;
 }

@@ -7,6 +7,11 @@ function addAccessor(obj, name, value) {
     return obj;
   };
 }
+
+function shadeColor2(color, percent) {   
+    var f=parseInt(color.slice(1),16),t=percent<0?0:255,p=percent<0?percent*-1:percent,R=f>>16,G=f>>8&0x00FF,B=f&0x0000FF;
+    return "#"+(0x1000000+(Math.round((t-R)*p)+R)*0x10000+(Math.round((t-G)*p)+G)*0x100+(Math.round((t-B)*p)+B)).toString(16).slice(1);
+}
 // This product includes color specifications and designs developed by Cynthia Brewer (http://colorbrewer.org/).
 "use strict";
 
@@ -341,7 +346,8 @@ var Geomap = (function () {
         return d.properties.name;
       },
       width: null,
-      zoomFactor: 4
+      zoomFactor: 4,
+      onGeofileLoad : null
     };
 
     // Setup methods to access properties.
@@ -405,18 +411,41 @@ var Geomap = (function () {
       value: function () {
         //debugger;
         var _this = this;
+        var countryElement = null;
         if (this._.selectedList.length > 0) {
-          this.svg.selectAll('path.unit').classed('grayout', true);
+          this.svg.selectAll('path.unit')
+            .classed('grayout', true)
+            .classed('active', false)
+            .style({
+              'stroke': '#505050'
+            });
 
           _.forEach(this._.selectedList, function (country) {
             var iso3 = country.id.toUpperCase();
             var countrySelector = 'path.unit.unit-' + iso3;
-            _this.svg.selectAll(countrySelector).classed('active', true);
-            _this.svg.selectAll(countrySelector).classed('grayout', false);
+            countryElement =  _this.svg.selectAll(countrySelector)
+                                .classed('active', true)
+                                .classed('grayout', false)
+                                .classed('no-data', true);
+
+            if(countryElement.datum().data) {
+              countryElement.style('stroke', shadeColor2(countryElement.datum().data.color, -0.5));
+            } else {
+              countryElement
+                .classed('no-data', true)
+                .style({
+                  'stroke': '#000000'
+                });
+            }
           })
         } else {
-          this.svg.selectAll('path.unit').classed('grayout', false);
-          this.svg.selectAll('path.unit').classed('active', false);
+          this.svg.selectAll('path.unit')
+            .classed('no-data', false)
+            .classed('grayout', false)
+            .classed('active', false)
+            .style({
+              'stroke':'#505050'
+            });
         }
       }
     }, {
@@ -472,8 +501,9 @@ var Geomap = (function () {
         // Load and render geo data.
         d3.json(self.properties.geofile, function (error, geo) {
           self.geo = geo;
+          var parsedData = topojson.feature(geo, geo.objects[self.properties.units]).features;
           self._.zoomElement.selectAll('path')
-            .data(topojson.feature(geo, geo.objects[self.properties.units]).features)
+            .data(parsedData)
             .enter()
             .append('path')
             .attr('class', function (d) {
@@ -482,6 +512,8 @@ var Geomap = (function () {
             .attr('d', self.path)
             .on('click', null)
             .on('click', self.clicked.bind(self));
+
+          self.properties.onGeofileLoad(parsedData);
           self.update();
         });
       }
@@ -563,6 +595,10 @@ var Choropleth = (function (_Geomap) {
         // Remove fill styles that may have been set previously.
         self.svg.selectAll('path.unit').style('fill', null);
 
+        d3.selectAll('.unit').each(function(unit) {
+          unit.data = null;
+        });
+
         // Add new fill styles based on data values.
         self.data.forEach(function (d) {
           var uid = d[self.properties.unitId].trim(),
@@ -582,7 +618,9 @@ var Choropleth = (function (_Geomap) {
             // New title with column and value.
             val = self.properties.format(val);
             unit.select('title').text(text + '\n some additional info');
+            
             d.color = fill;
+            unit.datum().data = d;
           }
         });
 
