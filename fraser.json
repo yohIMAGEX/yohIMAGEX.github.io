@@ -1,0 +1,83 @@
+{
+  "code": 200,
+  "data": {
+    "2014": [
+      {
+        "iso_code": "AGO",
+        "country": "Angola",
+        "summary_index": "5.08",
+        "somedata_index": "3.08"
+      },
+      {
+        "iso_code": "ALB",
+        "country": "Albania",
+        "summary_index": "7.40",
+        "somedata_index": "8.08"
+      },
+      {
+        "iso_code": "CAN",
+        "country": "Canada",
+        "summary_index": "9.08",
+        "somedata_index": "2.08"
+      },
+      {
+        "iso_code": "USA",
+        "country": "United States",
+        "summary_index": "8.40",
+        "somedata_index": "9.08"
+      }
+    ],
+    "2015": [
+      {
+        "iso_code": "AGO",
+        "country": "Angola",
+        "summary_index": "5.1",
+        "somedata_index": "3.8"
+      },
+      {
+        "iso_code": "ALB",
+        "country": "Albania",
+        "summary_index": "7.0",
+        "somedata_index": "8.08"
+      },
+      {
+        "iso_code": "CAN",
+        "country": "Canada",
+        "summary_index": "8.3",
+        "somedata_index": "2.08"
+      },
+      {
+        "iso_code": "USA",
+        "country": "United States",
+        "summary_index": "7.2",
+        "somedata_index": "9.08"
+      }
+    ],
+    "2016": [
+      {
+        "iso_code": "AGO",
+        "country": "Angola",
+        "summary_index": "6.8",
+        "somedata_index": "3.8"
+      },
+      {
+        "iso_code": "ALB",
+        "country": "Albania",
+        "summary_index": "5.3",
+        "somedata_index": "8.08"
+      },
+      {
+        "iso_code": "CAN",
+        "country": "Canada",
+        "summary_index": "8.3",
+        "somedata_index": "2.08"
+      },
+      {
+        "iso_code": "USA",
+        "country": "United States",
+        "summary_index": "6.1",
+        "somedata_index": "9.08"
+      }
+    ]
+  }
+}
