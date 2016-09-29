@@ -99,8 +99,24 @@ div.footer-controls .timeline-value.max {
     width: 100%;
 }
 
+.header-controls .select2.select2-container {
+    float: right;
+    width: 30% !important;
+    transition: width 0.1s;
+}
+
+.header-controls .select2.select2-container.select2-container--open {
+    float: right;
+    width: 50% !important;
+}
+
+
+#select2-typeahead-results.select2-results__options {
+    transition: all 0.1s;
+}
+
 #typeahead {
-    width: 100%;
+    width: 50%;
 }
 
 path.grayout {

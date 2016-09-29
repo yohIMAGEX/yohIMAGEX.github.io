@@ -283,7 +283,9 @@ $(document).ready(function () {
       return $result;
     }
 
-    $input.select2({
+    window.mapTypeahead = $input.select2({
+      dropdownParent: $('.header-controls'),
+      dropdownCssClass : 'map-typeahed--dropdown',
       templateResult: function (item) {
         // No need to template the searching text
         if (item.loading) {
@@ -317,6 +319,21 @@ $(document).ready(function () {
       if(e && e.params && e.params.data && e.params.data.id) {
         selectCountry(e.params.data.id); 
       }
+    });
+
+    $input.on("select2:open", function (e,b) { 
+      var times = 0;
+      var totalTime = 100;
+      var totalCicles = 10;
+      var timer = setInterval(function() {
+        times += 1;
+        $('#typeahead').select2("trigger", "query");
+
+        if(times == totalCicles + 1) {
+          window.clearInterval(timer);
+        }
+      }, totalTime/totalTime);
+      
     });
   }
 
@@ -532,7 +549,6 @@ $(document).ready(function () {
               infoValue = _.get(d, 'data.' + article.key, 'N/A');
               infoTitle = article.head;
 
-              console.log('data >>> ', d, article);
               var detached = d3.select(document.createElement("div"))
                 .classed(divClass, true);
 
