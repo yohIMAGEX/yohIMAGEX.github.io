@@ -100,13 +100,14 @@ $(document).ready(function () {
           afterClick();
           showCountryInfoPanel();
         }
+        console.log('map._.zoomBehavior.scale() ',map._.zoomBehavior.scale())
+        zoomSlider.value(map._.zoomBehavior.scale());
         $('#typeahead').select2("close");
       })
       .postUpdate(postUpdateMap);
     window.map = map;
 
     d3.json('fraser.json?2', function (error, fraserData) {
-      console.log('fraserData', fraserData);
       window.fraserData = fraserData.data;
       // build time slider
       var range = d3.extent(d3.keys(fraserData.data)).map(function(i){
@@ -116,6 +117,7 @@ $(document).ready(function () {
       slider = d3.slider()
                 .min(range[0])
                 .max(range[1])
+                .value(range[1])
                 .step(1)
                 .snap(false);
 
@@ -136,11 +138,9 @@ $(document).ready(function () {
       d3.select('#slide').selectAll('*').remove();
       d3.select('#slide').call(slider);
 
-      counter.setRange(range); 
-      console.log('calculated interval', maxTimelineDuration / (range[1] - range[0]));
+      counter.setRange(range);
       counter.setInterval(maxTimelineDuration / (range[1] - range[0]));
-      counter.setCounter(range[0]);
-      console.log('counter',counter);
+      counter.setCounter(range[1]);
       // end build time slider
 
       //create popover
@@ -156,12 +156,12 @@ $(document).ready(function () {
       //end create popover
 
       d3.select("#graph")
-        .datum(fraserData.data[range[0]])
+        .datum(fraserData.data[range[1]])
         .call(map.draw, map);
 
-      updateMapYear(range[0]);
+      updateMapYear(range[1]);
       
-      countriesData = fraserData.data[range[0]];
+      countriesData = fraserData.data[range[1]];
     });
 
     d3.select('.timeline-buttom').on('click', function() {
@@ -200,6 +200,9 @@ $(document).ready(function () {
           .attr('class', "fa fa-pause");
         d3.select('.timeline-text')
           .text('pause');
+        counter.resume();
+      } else {
+        counter.stop();
         counter.resume();
       }
     }
@@ -321,19 +324,10 @@ $(document).ready(function () {
       }
     });
 
-    $input.on("select2:open", function (e,b) { 
-      var times = 0;
-      var totalTime = 100;
-      var totalCicles = 10;
-      var timer = setInterval(function() {
-        times += 1;
-        $('#typeahead').select2("trigger", "query");
-
-        if(times == totalCicles + 1) {
-          window.clearInterval(timer);
-        }
-      }, totalTime/totalTime);
-      
+    $input.on("change", function (e,b) { 
+      if($input.val().length == 0) {
+        console.log("NOTHING");
+      }
     });
   }
 
@@ -421,11 +415,12 @@ $(document).ready(function () {
 
   function redraw() {
     // adjust things when the window size changes
+   
     width = $('#graph').width();
     height = $(document).height() - 82;
 
     // update projection
-    map.path.projection().translate([width/2, height/2]).scale([width/6]);
+    map.path.projection().translate([(width/2)-100, (height/2)-100]).scale([width/5]);
 
     // resize the map container
     map.svg
@@ -438,6 +433,7 @@ $(document).ready(function () {
 
     map.svg.selectAll('path').attr('d', map.path);
     map.width(width);
+  
   }
 
 
@@ -475,7 +471,6 @@ $(document).ready(function () {
 
         d3.selectAll('.unit.active').each(function(unit) {
           selectedCountries.push(unit);
-          console.log('selectedCountries', selectedCountries);
         });
 
         target.selectAll('div').remove();

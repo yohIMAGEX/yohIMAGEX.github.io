@@ -45,9 +45,9 @@ div.footer-controls {
     color: white;
     border-radius: 3px;
 
-    -webkit-box-shadow: 1px 1px 5px 1px rgba(210,210,210,1);
-    -moz-box-shadow: 1px 1px 5px 1px rgba(210,210,210,1);
-    box-shadow: 1px 1px 5px 1px rgba(210,210,210,1);
+    -webkit-box-shadow: 1px 1px 5px 1px rgba(0,0,0,0.2);
+    -moz-box-shadow: 1px 1px 5px 1px rgba(0,0,0,0.2);
+    box-shadow: 1px 1px 5px 1px rgba(0,0,0,0.2);
 }
 
 div.footer-controls .popover {
@@ -95,24 +95,25 @@ div.footer-controls .timeline-value.max {
 
 .header-controls {
     position: absolute;
-    padding: 20px;
-    width: 100%;
+    margin-top: 20px;
+    margin-right: 20px;
+    width: 50%;
+    right: 0;
 }
 
 .header-controls .select2.select2-container {
     float: right;
-    width: 30% !important;
-    transition: width 0.1s;
+    width: 100% !important;
 }
 
 .header-controls .select2.select2-container.select2-container--open {
     float: right;
-    width: 50% !important;
+    width: 100% !important;
 }
 
 
-#select2-typeahead-results.select2-results__options {
-    transition: all 0.1s;
+.map-typeahed--dropdown {
+    
 }
 
 #typeahead {
@@ -143,9 +144,9 @@ path.grayout {
     background-color: white;
     border-radius: 3px;
     
-    -webkit-box-shadow: 1px 1px 5px 1px rgba(210,210,210,1);
-    -moz-box-shadow: 1px 1px 5px 1px rgba(210,210,210,1);
-    box-shadow: 1px 1px 5px 1px rgba(210,210,210,1);
+    -webkit-box-shadow: 1px 1px 5px 1px rgba(0,0,0,0.2);
+    -moz-box-shadow: 1px 1px 5px 1px rgba(0,0,0,0.2);
+    box-shadow: 1px 1px 5px 1px rgba(0,0,0,0.2);
 
     z-index: 3;
 }
@@ -179,9 +180,9 @@ div#zoom-slide a.d3-slider-handle {
     bottom: 195px;
     border-radius: 3px 3px 3px 3px;
 
-    -webkit-box-shadow: 1px 1px 5px 1px rgba(210,210,210,1);
-    -moz-box-shadow: 1px 1px 5px 1px rgba(210,210,210,1);
-    box-shadow: 1px 1px 5px 1px rgba(210,210,210,1);
+    -webkit-box-shadow: 1px 1px 5px 1px rgba(0,0,0,0.2);
+    -moz-box-shadow: 1px 1px 5px 1px rgba(0,0,0,0.2);
+    box-shadow: 1px 1px 5px 1px rgba(0,0,0,0.2);
 }
 
 .legend-panel .legend-color {

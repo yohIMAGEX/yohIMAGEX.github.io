@@ -28,7 +28,7 @@ var Counter  = function(obj) {
       self.counter = value;
     },
     start: function () {
-      this.interval = setInterval(function () {
+      this.intervalObjec = setInterval(function () {
         self.counter += self.increment;
         if(self.counter >= self.to) {
           self.onFinish(self.to);
@@ -40,18 +40,18 @@ var Counter  = function(obj) {
     },
 
     pause: function () {
-      clearInterval(this.interval);
-      delete this.interval;
+      clearInterval(this.intervalObjec);
+      delete this.intervalObjec;
     },
 
     resume: function () {
-      if (!this.interval) this.start();
+      if (!this.intervalObjec) this.start();
     },
 
     stop : function() {
-      clearInterval(this.interval);
-      delete this.interval;
-      self.counter = 0;
+      clearInterval(this.intervalObjec);
+      delete this.intervalObjec;
+      self.counter = self.from;
     }
   };
 }

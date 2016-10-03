@@ -376,6 +376,52 @@ var Geomap = (function () {
      * will be kept.
      */
   }, {
+    key: 'zoomSelected',
+    value : function() {
+      var centroids = [];
+      var scale = null;
+      var translate = [0,0];
+
+      for(var i = 0; i < this._.selectedList.length; i++) {
+        centroids.push(this.path.centroid(this._.selectedList[i]));
+      }
+
+      if(centroids.length > 1) {
+
+        var bounds = {
+          topLeft : d3.min(centroids, function(d) { return d[0];}),
+          topRight : d3.max(centroids, function(d) { return d[0];}),
+          bottomLeft : d3.min(centroids, function(d) { return d[1];}),
+          bottomRight : d3.max(centroids, function(d) { return d[1];}),
+        };
+
+        var dx = bounds.topRight - bounds.topLeft,
+            dy = bounds.bottomRight - bounds.bottomLeft,
+            x = (bounds.topRight + bounds.topLeft) / 2,
+            y = (bounds.bottomLeft + bounds.bottomRight ) / 2;
+
+        scale = Math.floor(.8 / Math.max(dx / this.properties.width, dy / this.properties.height)),
+        scale = scale < 1 ? 1 : scale;
+        scale = scale > 10 ? 10 : scale;
+        translate = [this.properties.width / 2 - scale * x, this.properties.height / 2 - scale * y];
+      } else if(centroids.length == 1) {
+
+        var bounds = map.path.bounds(this._.selectedList[0]);
+        var dx = bounds[1][0] - bounds[0][0],
+            dy = bounds[1][1] - bounds[0][1];
+
+        var max = Math.max((dx  / this.properties.width), (dy / this.properties.height));
+
+        scale = Math.floor(1 / max);
+        scale = scale < 1 ? 1 : scale;
+        scale = scale > 10 ? 10 : scale;
+        translate = [this.properties.width / 2 - scale * centroids[0][0],  this.properties.height / 2 - scale * centroids[0][1]];
+      }
+      this._.zoomBehavior.scale(scale);
+      this._.zoomBehavior.translate(translate);
+      this.zoom();
+    }
+  }, {
       key: 'clicked',
       value: function clicked(d) {
         //debugger;
@@ -447,6 +493,7 @@ var Geomap = (function () {
               'stroke':'#505050'
             });
         }
+        this.zoomSelected();
       }
     }, {
       key: 'draw',
