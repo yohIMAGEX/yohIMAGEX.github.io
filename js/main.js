@@ -107,7 +107,7 @@ $(document).ready(function () {
       .postUpdate(postUpdateMap);
     window.map = map;
 
-    d3.json('fraser.json?2', function (error, fraserData) {
+    d3.json('http://ftw.imagex.com/api/v1/ftw_get_all_data', function (error, fraserData) {
       window.fraserData = fraserData.data;
       // build time slider
       var range = d3.extent(d3.keys(fraserData.data)).map(function(i){
