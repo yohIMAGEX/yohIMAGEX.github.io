@@ -648,8 +648,10 @@ var Choropleth = (function (_Geomap) {
 
         // Add new fill styles based on data values.
         self.data.forEach(function (d) {
-          var uid = d[self.properties.unitId].trim(),
-            val = d[self.properties.column].trim();
+          var uid = d[self.properties.unitId].trim();
+          var val = d[self.properties.column];
+          
+          if(typeof val == "string") val = val.trim();
 
           // selectAll must be called and not just select, otherwise the data
           // attribute of the selected path object is overwritten with self.data.

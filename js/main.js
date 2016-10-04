@@ -1,13 +1,20 @@
 
 'use stritct';
+var height = $(document).height() - 82;
+d3.select("#graph")
+  .style("height", height  + 'px');
+
 $(document).ready(function () {
   $(".disabled").click(function (e) {
     e.preventDefault();
     return false;
   });
-
+  
   var tooltip = d3.select('body').append('div')
     .attr('class', 'hidden tooltip-map');
+ 
+
+  console.log('#graph',$(document).height() - 82);
 
   var margin = {};
   var path = null;
@@ -79,7 +86,7 @@ $(document).ready(function () {
   function setup() {
     var map = d3.geomap.choropleth()
       .geofile('vendors/d3-geomap/topojson/world/countries.json')
-      .height($(document).height() - 82)
+      .height(height)
       //.width($('#graph').width())
       .projection(d3.geo.mercator)
       .colors(_.map(colorRange, 'color'))
@@ -107,7 +114,8 @@ $(document).ready(function () {
       .postUpdate(postUpdateMap);
     window.map = map;
 
-    d3.json('http://ftw.imagex.com/api/v1/ftw_get_all_data', function (error, fraserData) {
+    d3.json('fraser.json', function (error, fraserData) {
+
       window.fraserData = fraserData.data;
       // build time slider
       var range = d3.extent(d3.keys(fraserData.data)).map(function(i){
@@ -162,6 +170,8 @@ $(document).ready(function () {
       updateMapYear(range[1]);
       
       countriesData = fraserData.data[range[1]];
+      
+     
     });
 
     d3.select('.timeline-buttom').on('click', function() {
@@ -203,6 +213,7 @@ $(document).ready(function () {
         counter.resume();
       } else {
         counter.stop();
+        slider.value(counter.getCounter());
         counter.resume();
       }
     }
@@ -420,7 +431,7 @@ $(document).ready(function () {
     height = $(document).height() - 82;
 
     // update projection
-    map.path.projection().translate([(width/2)-100, (height/2)-100]).scale([width/5]);
+    map.path.projection().translate([(width/2), (height/2)+100]).scale([width/5]);
 
     // resize the map container
     map.svg

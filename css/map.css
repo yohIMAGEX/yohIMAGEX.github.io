@@ -118,6 +118,7 @@ div.footer-controls .timeline-value.max {
 
 #typeahead {
     width: 50%;
+    opacity: 0;
 }
 
 path.grayout {
