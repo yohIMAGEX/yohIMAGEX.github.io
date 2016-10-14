@@ -400,13 +400,13 @@ var Geomap = (function () {
             x = (bounds.topRight + bounds.topLeft) / 2,
             y = (bounds.bottomLeft + bounds.bottomRight ) / 2;
 
-        scale = Math.floor(.8 / Math.max(dx / this.properties.width, dy / this.properties.height)),
+        scale = Math.floor(.3 / Math.max(dx / this.properties.width, dy / this.properties.height)),
         scale = scale < 1 ? 1 : scale;
         scale = scale > 10 ? 10 : scale;
         translate = [this.properties.width / 2 - scale * x, this.properties.height / 2 - scale * y];
       } else if(centroids.length == 1) {
 
-        var bounds = map.path.bounds(this._.selectedList[0]);
+        var bounds = this.path.bounds(this._.selectedList[0]);
         var dx = bounds[1][0] - bounds[0][0],
             dy = bounds[1][1] - bounds[0][1];
 
@@ -640,14 +640,17 @@ var Choropleth = (function (_Geomap) {
         self.colorScale = self.properties.valueScale().domain(self.properties.domain || self.extent).range(self.properties.colors);
 
         // Remove fill styles that may have been set previously.
-        self.svg.selectAll('path.unit').style('fill', null);
+        self.svg.selectAll('path.unit')
+          .style('fill', null)
+          .each(function(unit) {
+            unit.data = null;
+          });
 
-        d3.selectAll('.unit').each(function(unit) {
-          unit.data = null;
+        self.data.sort(function(a, b){
+            return b[self.properties.column] - a[self.properties.column];
         });
-
         // Add new fill styles based on data values.
-        self.data.forEach(function (d) {
+        self.data.forEach(function (d, i) {
           var uid = d[self.properties.unitId].trim();
           var val = d[self.properties.column];
           
@@ -669,6 +672,7 @@ var Choropleth = (function (_Geomap) {
             unit.select('title').text(text + '\n some additional info');
             
             d.color = fill;
+            d.ranking = i+1;
             unit.datum().data = d;
           }
         });
