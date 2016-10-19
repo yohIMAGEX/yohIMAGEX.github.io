@@ -462,9 +462,6 @@ var Geomap = (function () {
           this.svg.selectAll('path.unit')
             .classed('grayout', true)
             .classed('active', false)
-            .style({
-              'stroke': '#505050'
-            });
 
           _.forEach(this._.selectedList, function (country) {
             var iso3 = country.id.toUpperCase();
@@ -474,14 +471,9 @@ var Geomap = (function () {
                                 .classed('grayout', false)
                                 .classed('no-data', true);
 
-            if(countryElement.datum().data) {
-              countryElement.style('stroke', shadeColor2(countryElement.datum().data.color, -0.5));
-            } else {
+            if(!countryElement.datum().data) {
               countryElement
-                .classed('no-data', true)
-                .style({
-                  'stroke': '#000000'
-                });
+                .classed('no-data', true);
             }
           })
         } else {
@@ -489,9 +481,6 @@ var Geomap = (function () {
             .classed('no-data', false)
             .classed('grayout', false)
             .classed('active', false)
-            .style({
-              'stroke':'#505050'
-            });
         }
         this.zoomSelected();
       }
