@@ -638,10 +638,13 @@ var Choropleth = (function (_Geomap) {
         self.data.sort(function(a, b){
             return b[self.properties.column] - a[self.properties.column];
         });
+
+        var previousRank = 0;
+        var previousRankOffset = 0;
         // Add new fill styles based on data values.
         self.data.forEach(function (d, i) {
           var uid = d[self.properties.unitId].trim();
-          var val = d[self.properties.column];
+          var val = (+d[self.properties.column] || 0);
           
           if(typeof val == "string") val = val.trim();
 
@@ -661,9 +664,29 @@ var Choropleth = (function (_Geomap) {
             unit.select('title').text(text + '\n some additional info');
             
             d.color = fill;
-            d.ranking = i+1;
+            
             unit.datum().data = d;
           }
+          var tmpPrevIndex;
+          var tmpPrevVal;
+          var newVal;
+          //ranking
+          if(i == 0) {
+            d.ranking = 1;
+            previousRank = 1;
+          } else if(i > 0) {
+            tmpPrevIndex = i - 1;
+            tmpPrevVal = (+self.data[tmpPrevIndex][self.properties.column] || 0)
+            if(tmpPrevVal > val) {
+              newVal = previousRank + 1 + previousRankOffset;
+              d.ranking = newVal;
+              previousRank = newVal;
+              previousRankOffset = 0;
+            } else {
+              d.ranking = previousRank;
+              previousRankOffset++;
+            }
+          } 
         });
 
         if (self.properties.legend) self.drawLegend(self.properties.legend);
